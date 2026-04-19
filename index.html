@@ -3,21 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>XYZ Corp Crisis Simulation | MGMT 494BI</title>
+    <title>XYZ Corp Secure Communication | MGMT 494BI</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
             --umass-maroon: #881c1c;
             --umass-maroon-dark: #6a1515;
             --text: #1a1a1a;
             --text-light: #555;
-            --bg: #fafafa;
-            --card-bg: #ffffff;
-            --border: #e0e0e0;
-            --warning: #f59e0b;
-            --warning-bg: #fef3c7;
+            --bg: #0a0a0a;
+            --card-bg: #141414;
+            --border: #333;
+            --accent: #00ff88;
+            --warning: #ff6b35;
+            --timer-bg: #1a1a1a;
         }
         
         * {
@@ -29,26 +30,58 @@
         body {
             font-family: 'Inter', -apple-system, sans-serif;
             background: var(--bg);
-            color: var(--text);
+            color: #e0e0e0;
             line-height: 1.6;
+            min-height: 100vh;
         }
         
         .header {
-            background: var(--umass-maroon);
-            color: white;
-            padding: 1.5rem 2rem;
-            text-align: center;
+            background: linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .logo {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
         }
         
         .header h1 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 0.25rem;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #fff;
         }
         
-        .header .subtitle {
-            font-size: 0.9rem;
-            opacity: 0.9;
+        .secure-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .secure-badge::before {
+            content: "●";
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
         
         .container {
@@ -59,118 +92,253 @@
         
         .card {
             background: var(--card-bg);
-            border-radius: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
             padding: 2rem;
             margin-bottom: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
         
         .card h2 {
-            font-size: 1.2rem;
-            color: var(--umass-maroon);
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--accent);
             margin-bottom: 1rem;
-        }
-        
-        .warning-box {
-            background: var(--warning-bg);
-            border-left: 4px solid var(--warning);
-            padding: 1rem 1.25rem;
-            margin-bottom: 1.5rem;
-            border-radius: 0 8px 8px 0;
-        }
-        
-        .warning-box strong {
-            color: #92400e;
+            font-weight: 500;
         }
         
         /* Access Code Screen */
         #access-screen {
-            text-align: center;
-            padding: 3rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
         }
         
-        #access-screen h2 {
-            margin-bottom: 1rem;
+        #access-screen .card {
+            text-align: center;
+            max-width: 400px;
         }
         
         .code-input {
+            font-family: 'JetBrains Mono', monospace;
             font-size: 1.5rem;
             padding: 0.75rem 1.5rem;
             border: 2px solid var(--border);
             border-radius: 8px;
             text-align: center;
-            width: 200px;
-            letter-spacing: 0.2em;
+            width: 180px;
+            letter-spacing: 0.3em;
             text-transform: uppercase;
+            background: #0a0a0a;
+            color: var(--accent);
         }
         
         .code-input:focus {
             outline: none;
-            border-color: var(--umass-maroon);
+            border-color: var(--accent);
         }
         
         .btn {
-            background: var(--umass-maroon);
-            color: white;
+            background: var(--accent);
+            color: #0a0a0a;
             border: none;
             padding: 0.75rem 2rem;
             font-size: 1rem;
-            font-weight: 500;
+            font-weight: 600;
             border-radius: 8px;
             cursor: pointer;
             margin-top: 1rem;
-            transition: background 0.2s;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
         
         .btn:hover {
-            background: var(--umass-maroon-dark);
+            background: #00cc6a;
+            transform: translateY(-1px);
+        }
+        
+        .btn-warning {
+            background: var(--warning);
+        }
+        
+        .btn-warning:hover {
+            background: #e55a2b;
         }
         
         .btn:disabled {
-            background: #ccc;
+            background: #333;
+            color: #666;
             cursor: not-allowed;
+            transform: none;
         }
         
         .error-msg {
-            color: #dc2626;
+            color: #ff4444;
             margin-top: 0.5rem;
             font-size: 0.9rem;
         }
         
-        /* Simulation Screen */
-        #simulation-screen {
+        /* Briefing Screen */
+        #briefing-screen {
             display: none;
         }
         
-        .scenario-brief {
+        .briefing-text {
+            color: #ccc;
             font-size: 0.95rem;
-            color: var(--text-light);
         }
         
-        .scenario-brief p {
+        .briefing-text p {
             margin-bottom: 1rem;
         }
         
+        .briefing-text strong {
+            color: #fff;
+        }
+        
+        .warning-box {
+            background: rgba(255, 107, 53, 0.1);
+            border: 1px solid var(--warning);
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+            color: var(--warning);
+        }
+        
+        .session-info {
+            font-family: 'JetBrains Mono', monospace;
+            background: #0a0a0a;
+            padding: 1rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+        }
+        
+        .session-info .label {
+            font-size: 0.75rem;
+            color: #666;
+            text-transform: uppercase;
+        }
+        
+        .session-info .value {
+            font-size: 1.2rem;
+            color: var(--accent);
+            margin-top: 0.25rem;
+        }
+        
+        .question-count {
+            text-align: center;
+            padding: 1.5rem;
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+        
+        .question-count .number {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        
+        .question-count .label {
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        .start-section {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+        }
+        
+        /* Questions Screen */
+        #questions-screen {
+            display: none;
+        }
+        
+        .timer-bar {
+            background: var(--timer-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            position: sticky;
+            top: 1rem;
+            z-index: 100;
+        }
+        
+        .timer {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2rem;
+            color: var(--accent);
+            font-weight: 600;
+        }
+        
+        .timer.warning {
+            color: var(--warning);
+            animation: timerPulse 1s infinite;
+        }
+        
+        @keyframes timerPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        
+        .timer-label {
+            font-size: 0.8rem;
+            color: #888;
+            text-transform: uppercase;
+        }
+        
         .question-card {
-            background: #f8f9fa;
-            border: 2px solid var(--umass-maroon);
-            border-radius: 12px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
             padding: 1.5rem;
             margin-bottom: 1rem;
         }
         
+        .question-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+        
         .question-number {
+            font-family: 'JetBrains Mono', monospace;
             font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: var(--umass-maroon);
-            margin-bottom: 0.5rem;
+            color: var(--accent);
+            background: rgba(0, 255, 136, 0.1);
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
         }
         
         .question-text {
             font-size: 1.1rem;
-            font-weight: 500;
-            line-height: 1.5;
+            line-height: 1.6;
+            color: #fff;
+        }
+        
+        .submit-section {
+            text-align: center;
+            margin-top: 2rem;
+        }
+        
+        /* Complete Screen */
+        #complete-screen {
+            display: none;
+        }
+        
+        .complete-icon {
+            font-size: 4rem;
+            text-align: center;
+            margin-bottom: 1rem;
         }
         
         .instructions-list {
@@ -179,21 +347,27 @@
         }
         
         .instructions-list li {
-            padding: 0.5rem 0;
-            padding-left: 2rem;
+            padding: 0.75rem 0;
+            padding-left: 2.5rem;
             position: relative;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .instructions-list li:last-child {
+            border-bottom: none;
         }
         
         .instructions-list li::before {
             content: attr(data-step);
             position: absolute;
             left: 0;
-            width: 1.5rem;
-            height: 1.5rem;
-            background: var(--umass-maroon);
-            color: white;
+            width: 1.75rem;
+            height: 1.75rem;
+            background: var(--accent);
+            color: #0a0a0a;
             border-radius: 50%;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
+            font-weight: 600;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -201,34 +375,27 @@
         
         .email-link {
             display: inline-block;
-            background: var(--umass-maroon);
-            color: white;
-            padding: 0.5rem 1rem;
+            background: var(--accent);
+            color: #0a0a0a;
+            padding: 0.75rem 1.5rem;
             border-radius: 6px;
             text-decoration: none;
-            font-weight: 500;
-            margin-top: 0.5rem;
+            font-weight: 600;
+            margin-top: 1rem;
+            transition: all 0.2s;
         }
         
         .email-link:hover {
-            background: var(--umass-maroon-dark);
-        }
-        
-        .student-id-display {
-            font-family: monospace;
-            background: #f0f0f0;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            font-size: 1.1rem;
-            display: inline-block;
-            margin: 0.5rem 0;
+            background: #00cc6a;
         }
         
         .footer {
             text-align: center;
             padding: 2rem;
-            color: var(--text-light);
-            font-size: 0.85rem;
+            color: #666;
+            font-size: 0.8rem;
+            border-top: 1px solid var(--border);
+            margin-top: 2rem;
         }
         
         @media (max-width: 600px) {
@@ -240,94 +407,137 @@
                 padding: 1.5rem;
             }
             
-            .question-text {
-                font-size: 1rem;
+            .timer {
+                font-size: 1.5rem;
             }
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>XYZ Corp Crisis Simulation</h1>
-        <div class="subtitle">MGMT 494BI: Business Policy & Strategy</div>
+        <div class="header-left">
+            <div class="logo">XYZ CORP</div>
+            <h1>Secure Communication Channel</h1>
+        </div>
+        <div class="secure-badge">ENCRYPTED</div>
     </div>
     
     <!-- Access Code Screen -->
     <div id="access-screen" class="container">
         <div class="card">
-            <h2>Enter Access Code</h2>
-            <p style="margin-bottom: 1.5rem; color: var(--text-light);">Your instructor will provide the access code.</p>
+            <h2>Authentication Required</h2>
+            <p style="margin-bottom: 1.5rem; color: #888;">Enter your secure access code to proceed.</p>
             <input type="text" id="access-code" class="code-input" maxlength="6" placeholder="------" autocomplete="off">
             <br>
-            <button class="btn" onclick="checkAccess()">Begin Simulation</button>
+            <button class="btn" onclick="checkAccess()">Authenticate</button>
             <p id="error-message" class="error-msg" style="display: none;"></p>
         </div>
     </div>
     
-    <!-- Simulation Screen -->
-    <div id="simulation-screen" class="container">
-        <div class="warning-box">
-            <strong>⚠️ Important:</strong> Your questions are unique to you. Do not share them with classmates. Record your answers and submit within 48 hours.
-        </div>
-        
+    <!-- Briefing Screen -->
+    <div id="briefing-screen" class="container">
         <div class="card">
-            <h2>Your Unique Session ID</h2>
-            <p>Include this ID in your submission filename:</p>
-            <div class="student-id-display" id="session-id">---</div>
+            <h2>Mission Briefing</h2>
+            <div class="briefing-text">
+                <p>You have successfully connected to the secure communication channel with <strong>XYZ Corporation Headquarters</strong>.</p>
+                
+                <p>As the <strong>Regional Vice President of Human Resources</strong>, you will be asked to provide verbal responses to questions from HQ regarding the relocation plan. Your answers will be recorded and transmitted via this encrypted channel.</p>
+                
+                <p>Due to the sensitive nature of this operation, we do not know in advance which specific questions HQ will ask. You must be prepared to answer <strong>any of the 50 possible questions</strong> in the assignment memo.</p>
+            </div>
+            
+            <div class="warning-box">
+                <strong>⚠️ Security Protocol:</strong> This line will only remain secure for a limited time. Once you begin, you must complete your responses before the timer expires. The channel cannot be reopened.
+            </div>
+            
+            <div class="session-info">
+                <div class="label">Your Session ID</div>
+                <div class="value" id="session-id">------</div>
+                <div style="margin-top: 0.5rem; font-size: 0.8rem; color: #888;">Include this in your submission filename</div>
+            </div>
+            
+            <div class="question-count">
+                <div class="number">5</div>
+                <div class="label">Questions will be asked by HQ</div>
+            </div>
+            
+            <div class="briefing-text">
+                <p><strong>Instructions:</strong></p>
+                <ul style="margin-left: 1.5rem; color: #ccc;">
+                    <li>When ready, click "Start Secure Session" below</li>
+                    <li>Five questions will appear with a countdown timer</li>
+                    <li>Record yourself answering all five questions verbally</li>
+                    <li>Name your recording file with your Student ID and Session ID</li>
+                    <li>Submit via email within 48 hours</li>
+                </ul>
+            </div>
+            
+            <div class="start-section">
+                <p style="color: #888; margin-bottom: 1rem;">When you are ready to answer the five questions from HQ, click the button below.</p>
+                <button class="btn btn-warning" onclick="startQuestions()">Start Secure Session</button>
+            </div>
         </div>
-        
-        <div class="card">
-            <h2>The Situation</h2>
-            <div class="scenario-brief">
-                <p>You are the <strong>Regional Vice President of Human Resources</strong> for XYZ Corp, based in Hong Kong. Your company manufactures components for toys and, recently classified, for military applications — specifically propellers for surveillance drones used at U.S. military bases.</p>
-                
-                <p>The U.S. government has directed you to relocate production to the United States. The team working on these parts must be removed from China.</p>
-                
-                <p><strong>The complication:</strong> Three days ago, BorgWarner executives were arrested in Shanghai while communicating with staff about similar restrictions. They remain under house arrest.</p>
-                
-                <p>Your Technology Security Department has told you: <strong>no internet, no email, meetings in person only, nothing in writing</strong>. Assume all digital communication is compromised.</p>
-                
-                <p>Tomorrow morning, you will hike the MacLehose Trail with the Regional VP of Operations and the Regional President — a chance to plan without surveillance. Later, you will present your recommendations via secure app.</p>
-                
-                <p><strong>You have 30 years in China, speak the language, and have seen a lot.</strong> Your colleagues are looking to you for the plan.</p>
+    </div>
+    
+    <!-- Questions Screen -->
+    <div id="questions-screen" class="container">
+        <div class="timer-bar">
+            <div>
+                <div class="timer-label">Time Remaining</div>
+                <div class="timer" id="timer">10:00</div>
+            </div>
+            <div style="text-align: right;">
+                <div class="timer-label">Session</div>
+                <div style="font-family: 'JetBrains Mono', monospace; color: var(--accent);" id="session-id-display">------</div>
             </div>
         </div>
         
-        <div class="card">
-            <h2>Your Questions</h2>
-            <p style="margin-bottom: 1.5rem; color: var(--text-light);">Answer each question verbally in your recording. Aim for 60-90 seconds per question.</p>
-            <div id="questions-container">
-                <!-- Questions will be inserted here -->
-            </div>
+        <div id="questions-container">
+            <!-- Questions will be inserted here -->
+        </div>
+        
+        <div class="submit-section">
+            <p style="color: #888; margin-bottom: 1rem;">Once you have recorded your answers to all questions:</p>
+            <button class="btn" onclick="completeSession()">Complete Session</button>
+        </div>
+    </div>
+    
+    <!-- Complete Screen -->
+    <div id="complete-screen" class="container">
+        <div class="card" style="text-align: center;">
+            <div class="complete-icon">✓</div>
+            <h2>Session Complete</h2>
+            <p style="color: #888;">Secure channel closed. Submit your recording within 48 hours.</p>
         </div>
         
         <div class="card">
             <h2>Submission Instructions</h2>
             <ol class="instructions-list">
-                <li data-step="1">Record yourself answering all questions above (audio or video)</li>
-                <li data-step="2">Name your file: <strong>494BI_XYZ_[StudentID]_[SessionID].mp3</strong><br><span style="font-size: 0.9em; color: #666;">Example: 494BI_XYZ_12345678_A7K2M9.mp3</span></li>
+                <li data-step="1">Ensure you have recorded answers to all 5 questions</li>
+                <li data-step="2">Name your file: <strong style="color: var(--accent);">494BI_XYZ_[StudentID]_<span id="final-session-id">------</span>.mp3</strong></li>
                 <li data-step="3">Email your recording to the address below</li>
-                <li data-step="4">Deadline: 48 hours from now</li>
+                <li data-step="4">Deadline: 48 hours from session start</li>
             </ol>
-            <br>
-            <a href="mailto:mlangenkamp@umass.edu?subject=494BI%20XYZ%20Simulation%20Submission" class="email-link">📧 Submit via Email</a>
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <a href="mailto:mlangenkamp@umass.edu?subject=494BI%20XYZ%20Simulation%20Submission" class="email-link">📧 Submit Recording</a>
+            </div>
         </div>
         
         <div class="card">
             <h2>Grading Criteria</h2>
-            <ul style="padding-left: 1.25rem;">
-                <li><strong>Risk Awareness</strong> (25%) — Understanding of legal, detention, and surveillance risks</li>
-                <li><strong>Cultural Intelligence</strong> (25%) — Application of Trompenaars, GLOBE, face, guanxi</li>
-                <li><strong>Strategic Thinking</strong> (25%) — Coherent plan balancing competing demands</li>
-                <li><strong>Historical Grounding</strong> (15%) — Use of precedents (Kovrig/Spavor, Rio Tinto, etc.)</li>
-                <li><strong>Communication Clarity</strong> (10%) — Clear, organized, within time limits</li>
+            <ul style="padding-left: 1.25rem; color: #ccc;">
+                <li><strong style="color: #fff;">Risk Awareness</strong> (25%) — Understanding of legal, detention, and surveillance risks</li>
+                <li><strong style="color: #fff;">Cultural Intelligence</strong> (25%) — Application of Trompenaars, GLOBE, face, guanxi</li>
+                <li><strong style="color: #fff;">Strategic Thinking</strong> (25%) — Coherent plan balancing competing demands</li>
+                <li><strong style="color: #fff;">Historical Grounding</strong> (15%) — Use of precedents (Kovrig/Spavor, Rio Tinto, etc.)</li>
+                <li><strong style="color: #fff;">Communication Clarity</strong> (10%) — Clear, organized, within time limits</li>
             </ul>
         </div>
     </div>
     
     <div class="footer">
-        MGMT 494BI: Business Policy & Strategy<br>
-        Isenberg School of Management, UMass Amherst
+        MGMT 494BI: Business Policy & Strategy | Isenberg School of Management, UMass Amherst<br>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.7rem;">SIMULATION EXERCISE — NOT A REAL SECURE CHANNEL</span>
     </div>
     
     <script>
@@ -358,7 +568,7 @@
             // Category D: Strategic Options
             "What are the arguments for and against accelerating the relocation versus slowing it down?",
             "Should you consider relocating personnel before communicating the business decision to Chinese staff?",
-            "What role could a third country (Singapore, Vietnam, Thailand) play in your relocation strategy?",
+            "What role could a third country such as Singapore, Vietnam, or Thailand play in your relocation strategy?",
             "How might you structure communications to Chinese staff to minimize legal exposure under Chinese law?",
             "Should your company consider abandoning the defense contract rather than relocating production?",
             "What is your recommendation for handling the 1,000+ employees in divisions not affected by the defense restriction?",
@@ -406,44 +616,46 @@
         
         // Category distribution for balanced selection
         const categories = {
-            A: [0, 1, 2, 3, 4, 5],           // Risk Assessment
-            B: [6, 7, 8, 9, 10, 11],         // Chinese Government
-            C: [12, 13, 14, 15],             // U.S. Government
-            D: [16, 17, 18, 19, 20, 21],     // Strategic Options
-            E: [22, 23, 24, 25, 26, 27],     // HR Specifics
-            F: [28, 29, 30, 31, 32],         // Operational Security
-            G: [33, 34, 35, 36],             // Cultural Intelligence
-            H: [37, 38, 39, 40, 41],         // Historical Precedent
-            I: [42, 43, 44, 45, 46],         // Game Theory
-            J: [47, 48, 49]                  // Presentation
+            A: [0, 1, 2, 3, 4, 5],
+            B: [6, 7, 8, 9, 10, 11],
+            C: [12, 13, 14, 15],
+            D: [16, 17, 18, 19, 20, 21],
+            E: [22, 23, 24, 25, 26, 27],
+            F: [28, 29, 30, 31, 32],
+            G: [33, 34, 35, 36],
+            H: [37, 38, 39, 40, 41],
+            I: [42, 43, 44, 45, 46],
+            J: [47, 48, 49]
         };
         
-        // Access code (simple for now - can be changed)
         const VALID_CODES = ['HK2026', 'XYZ494', 'EXEC26'];
+        
+        let sessionId = '';
+        let timerInterval = null;
+        let timeRemaining = 600; // 10 minutes in seconds
         
         function checkAccess() {
             const code = document.getElementById('access-code').value.toUpperCase().trim();
             const errorEl = document.getElementById('error-message');
             
             if (VALID_CODES.includes(code)) {
+                sessionId = generateSessionId();
+                document.getElementById('session-id').textContent = sessionId;
                 document.getElementById('access-screen').style.display = 'none';
-                document.getElementById('simulation-screen').style.display = 'block';
-                generateQuestions();
+                document.getElementById('briefing-screen').style.display = 'block';
             } else {
-                errorEl.textContent = 'Invalid access code. Please check with your instructor.';
+                errorEl.textContent = 'Authentication failed. Invalid access code.';
                 errorEl.style.display = 'block';
             }
         }
         
-        function generateQuestions() {
-            // Generate unique session ID
-            const sessionId = generateSessionId();
-            document.getElementById('session-id').textContent = sessionId;
+        function startQuestions() {
+            document.getElementById('briefing-screen').style.display = 'none';
+            document.getElementById('questions-screen').style.display = 'block';
+            document.getElementById('session-id-display').textContent = sessionId;
             
-            // Select questions with category balance
-            const selectedQuestions = selectBalancedQuestions(4);
-            
-            // Display questions
+            // Generate and display questions
+            const selectedQuestions = selectBalancedQuestions(5);
             const container = document.getElementById('questions-container');
             container.innerHTML = '';
             
@@ -451,18 +663,56 @@
                 const questionDiv = document.createElement('div');
                 questionDiv.className = 'question-card';
                 questionDiv.innerHTML = `
-                    <div class="question-number">Question ${i + 1} of ${selectedQuestions.length}</div>
+                    <div class="question-header">
+                        <div class="question-number">QUESTION ${i + 1} OF 5</div>
+                    </div>
                     <div class="question-text">${questionBank[qIndex]}</div>
                 `;
                 container.appendChild(questionDiv);
             });
             
-            // Store in localStorage for reference
+            // Store session data
             localStorage.setItem('xyz_session', JSON.stringify({
                 sessionId: sessionId,
                 questions: selectedQuestions,
                 timestamp: new Date().toISOString()
             }));
+            
+            // Start timer
+            startTimer();
+        }
+        
+        function startTimer() {
+            updateTimerDisplay();
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                updateTimerDisplay();
+                
+                if (timeRemaining <= 60) {
+                    document.getElementById('timer').classList.add('warning');
+                }
+                
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    completeSession();
+                }
+            }, 1000);
+        }
+        
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            document.getElementById('timer').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        function completeSession() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+            document.getElementById('questions-screen').style.display = 'none';
+            document.getElementById('complete-screen').style.display = 'block';
+            document.getElementById('final-session-id').textContent = sessionId;
         }
         
         function selectBalancedQuestions(count) {
