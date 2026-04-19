@@ -530,6 +530,12 @@
             <p style="color: #888; margin-top: 1rem;">Your responses have been securely transmitted to HQ.</p>
         </div>
         
+        <div class="card" style="text-align: center; background: #0a0a0a; border: 2px solid var(--accent);">
+            <h2>Your Score</h2>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 4rem; font-weight: 700; color: var(--accent);" id="final-score">--</div>
+            <div style="color: #888; font-size: 1rem;">out of 20 correct (<span id="final-percent">--%</span>)</div>
+        </div>
+        
         <div class="card">
             <h2>Session Summary</h2>
             <div class="session-info">
@@ -541,16 +547,11 @@
                 <div class="label">Time Used</div>
                 <div class="value" id="time-used">--:--</div>
             </div>
-            
-            <div class="session-info">
-                <div class="label">Questions Answered</div>
-                <div class="value" id="final-answered">20 / 20</div>
-            </div>
         </div>
         
-        <div class="card">
-            <h2>What Happens Next</h2>
-            <p style="color: #ccc;">Your responses have been recorded and will be reviewed by your instructor. Results will be provided separately.</p>
+        <div class="card" style="border: 1px solid var(--warning);">
+            <h2 style="color: var(--warning);">⚠️ Submission Required</h2>
+            <p style="color: #ccc;">Take a screenshot of this screen and submit it to your instructor as proof of completion.</p>
         </div>
     </div>
     
@@ -847,11 +848,12 @@
                 }
             });
             
-            // Update complete screen (no score shown)
+            // Update complete screen with score
+            document.getElementById('final-score').textContent = correct;
+            document.getElementById('final-percent').textContent = Math.round((correct / 20) * 100) + '%';
             document.getElementById('final-session-id').textContent = sessionId;
             document.getElementById('time-used').textContent = 
                 `${timeUsedMin.toString().padStart(2, '0')}:${timeUsedSec.toString().padStart(2, '0')}`;
-            document.getElementById('final-answered').textContent = `${answeredCount} / 20`;
             
             // Save results (for instructor)
             const results = {
