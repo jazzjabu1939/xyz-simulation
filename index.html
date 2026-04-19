@@ -457,9 +457,18 @@
     <div id="access-screen" class="container">
         <div class="card">
             <h2>Authentication Required</h2>
-            <p style="margin-bottom: 1.5rem; color: #888;">Enter your secure access code to proceed.</p>
-            <input type="text" id="access-code" class="code-input" maxlength="6" placeholder="------" autocomplete="off">
-            <br>
+            <p style="margin-bottom: 1rem; color: #888;">Enter your Student ID and access code to proceed.</p>
+            
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; font-size: 0.8rem; color: #888; margin-bottom: 0.5rem; text-transform: uppercase;">Student ID</label>
+                <input type="text" id="student-id" class="code-input" style="width: 200px; letter-spacing: 0.1em;" placeholder="12345678" autocomplete="off">
+            </div>
+            
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; font-size: 0.8rem; color: #888; margin-bottom: 0.5rem; text-transform: uppercase;">Access Code</label>
+                <input type="text" id="access-code" class="code-input" maxlength="6" placeholder="------" autocomplete="off">
+            </div>
+            
             <button class="btn" onclick="checkAccess()">Authenticate</button>
             <p id="error-message" class="error-msg" style="display: none;"></p>
         </div>
@@ -701,21 +710,37 @@
         const VALID_CODES = ['HK2026', 'XYZ494', 'EXEC26'];
         
         let sessionId = '';
+        let studentId = '';
         let timerInterval = null;
         let timeRemaining = 300; // 5 minutes
         let startTime = null;
         let answers = {};
         let selectedQuestions = [];
         
+        // Google Form submission URL (pre-filled)
+        const FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLScGuU7Y3iQ7AAQa4ewVCWths-jc48ASIi1Nuz4B1VrS5HnOQg/formResponse';
+        
         function checkAccess() {
             const code = document.getElementById('access-code').value.toUpperCase().trim();
+            studentId = document.getElementById('student-id').value.trim();
             const errorEl = document.getElementById('error-message');
+            
+            if (!studentId) {
+                errorEl.textContent = 'Please enter your Student ID.';
+                errorEl.style.display = 'block';
+                return;
+            }
             
             if (VALID_CODES.includes(code)) {
                 sessionId = generateSessionId();
                 document.getElementById('session-id').textContent = sessionId;
                 document.getElementById('access-screen').style.display = 'none';
                 document.getElementById('briefing-screen').style.display = 'block';
+                
+                // Track attempt number
+                const attemptKey = 'xyz_attempts_' + studentId;
+                const attempts = parseInt(localStorage.getItem(attemptKey) || '0') + 1;
+                localStorage.setItem(attemptKey, attempts.toString());
             } else {
                 errorEl.textContent = 'Authentication failed. Invalid access code.';
                 errorEl.style.display = 'block';
@@ -885,8 +910,13 @@
             });
             breakdown.innerHTML = breakdownHTML;
             
+            // Get attempt number
+            const attemptKey = 'xyz_attempts_' + studentId;
+            const attemptNum = localStorage.getItem(attemptKey) || '1';
+            
             // Save results (for instructor)
             const results = {
+                studentId: studentId,
                 sessionId: sessionId,
                 questions: selectedQuestions.map(qi => questionBank[qi][0]),
                 questionIndices: selectedQuestions,
@@ -896,9 +926,13 @@
                 total: 20,
                 percentage: Math.round((correct / 20) * 100),
                 timeUsed: `${timeUsedMin}:${timeUsedSec.toString().padStart(2, '0')}`,
+                attemptNumber: attemptNum,
                 timestamp: new Date().toISOString()
             };
             localStorage.setItem('xyz_results_' + sessionId, JSON.stringify(results));
+            
+            // Submit to Google Form
+            submitToGoogleForm(results);
             
             // Show complete screen
             document.getElementById('questions-screen').style.display = 'none';
@@ -938,6 +972,30 @@
                 checkAccess();
             }
         });
+        
+        // Submit results to Google Form
+        async function submitToGoogleForm(results) {
+            try {
+                const formData = new FormData();
+                formData.append('entry.1244127987', results.studentId);        // Student ID
+                formData.append('entry.545730671', results.sessionId);         // Session ID  
+                formData.append('entry.510286780', results.score.toString());  // Score
+                formData.append('entry.1059631205', results.percentage + '%'); // Percentage
+                formData.append('entry.1292816420', results.timeUsed);         // Time Used
+                formData.append('entry.79843979', results.attemptNumber);      // Attempt Number
+                
+                // Submit via fetch (no-cors mode for Google Forms)
+                fetch(FORM_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: formData
+                });
+                
+                console.log('Results submitted to Google Form');
+            } catch (error) {
+                console.error('Form submission error:', error);
+            }
+        }
     </script>
 </body>
 </html>
