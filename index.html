@@ -257,7 +257,7 @@
         <div class="card">
             <h2>Enter Access Code</h2>
             <p style="margin-bottom: 1.5rem; color: var(--text-light);">Your instructor will provide the access code.</p>
-            <input type="text" id="access-code" class="code-input" maxlength="8" placeholder="--------" autocomplete="off" style="width: 240px;">
+            <input type="text" id="access-code" class="code-input" maxlength="6" placeholder="------" autocomplete="off">
             <br>
             <button class="btn" onclick="checkAccess()">Begin Simulation</button>
             <p id="error-message" class="error-msg" style="display: none;"></p>
@@ -419,7 +419,7 @@
         };
         
         // Access code (simple for now - can be changed)
-        const VALID_CODES = ['TRAIL26', 'XYZ494', 'HKEXEC'];
+        const VALID_CODES = ['HK2026', 'XYZ494', 'EXEC26'];
         
         function checkAccess() {
             const code = document.getElementById('access-code').value.toUpperCase().trim();
