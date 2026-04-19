@@ -9,10 +9,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --umass-maroon: #881c1c;
-            --umass-maroon-dark: #6a1515;
-            --text: #1a1a1a;
-            --text-light: #555;
             --bg: #0a0a0a;
             --card-bg: #141414;
             --border: #333;
@@ -316,14 +312,9 @@
             transition: border-color 0.2s;
         }
         
-        .question-card.answered-yes {
-            border-color: var(--yes-color);
-            background: rgba(0, 255, 136, 0.05);
-        }
-        
-        .question-card.answered-no {
-            border-color: var(--no-color);
-            background: rgba(255, 68, 68, 0.05);
+        .question-card.answered {
+            border-color: #444;
+            opacity: 0.7;
         }
         
         .question-header {
@@ -339,6 +330,15 @@
             color: var(--accent);
             background: rgba(0, 255, 136, 0.1);
             padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+        }
+        
+        .locked-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: #666;
+            background: #222;
+            padding: 0.25rem 0.5rem;
             border-radius: 4px;
         }
         
@@ -369,20 +369,19 @@
             letter-spacing: 0.05em;
         }
         
-        .answer-btn:hover {
+        .answer-btn:hover:not(.locked) {
             border-color: #666;
             color: #fff;
         }
         
-        .answer-btn.yes-btn.selected {
-            background: var(--yes-color);
-            border-color: var(--yes-color);
-            color: #0a0a0a;
+        .answer-btn.locked {
+            cursor: not-allowed;
+            opacity: 0.5;
         }
         
-        .answer-btn.no-btn.selected {
-            background: var(--no-color);
-            border-color: var(--no-color);
+        .answer-btn.selected {
+            background: #333;
+            border-color: #555;
             color: #fff;
         }
         
@@ -416,56 +415,6 @@
             text-align: center;
             margin-bottom: 1rem;
         }
-        
-        .score-display {
-            text-align: center;
-            padding: 2rem;
-            background: #0a0a0a;
-            border-radius: 8px;
-            margin: 1.5rem 0;
-        }
-        
-        .score-display .score-value {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 3rem;
-            font-weight: 700;
-            color: var(--accent);
-        }
-        
-        .score-display .score-label {
-            color: #888;
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
-        }
-        
-        .results-summary {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin: 1.5rem 0;
-        }
-        
-        .result-box {
-            background: #0a0a0a;
-            padding: 1rem;
-            border-radius: 8px;
-            text-align: center;
-        }
-        
-        .result-box .value {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 1.5rem;
-            font-weight: 600;
-        }
-        
-        .result-box .label {
-            font-size: 0.8rem;
-            color: #888;
-            margin-top: 0.25rem;
-        }
-        
-        .result-box.yes .value { color: var(--yes-color); }
-        .result-box.no .value { color: var(--no-color); }
         
         .footer {
             text-align: center;
@@ -523,13 +472,13 @@
             <div class="briefing-text">
                 <p>You have successfully connected to the secure communication channel with <strong>XYZ Corporation Headquarters</strong>.</p>
                 
-                <p>As the <strong>Regional Vice President of Human Resources</strong>, HQ needs to understand your assessment of the current situation in China. They will ask you a series of questions that require <strong>Yes</strong> or <strong>No</strong> answers.</p>
+                <p>As the <strong>Regional Vice President of Human Resources</strong>, HQ needs to understand your assessment of the current situation. They will ask you a series of questions that require <strong>Yes</strong> or <strong>No</strong> answers.</p>
                 
                 <p>Due to the sensitive nature of this operation, we do not know in advance which specific questions HQ will ask. The assignment memo contains <strong>100 possible questions</strong> — you must be prepared to answer any of them.</p>
             </div>
             
             <div class="warning-box">
-                <strong>⚠️ Security Protocol:</strong> This line will only remain secure for a limited time. Once you begin, you must complete your responses before the timer expires. The channel cannot be reopened.
+                <strong>⚠️ Security Protocol:</strong> Once you submit an answer, it cannot be changed. The encrypted channel does not support message recall. Answer carefully.
             </div>
             
             <div class="session-info">
@@ -578,7 +527,7 @@
         <div class="card" style="text-align: center;">
             <div class="complete-icon">✓</div>
             <h2>Transmission Complete</h2>
-            <p style="color: #888;">Your responses have been securely transmitted to HQ.</p>
+            <p style="color: #888; margin-top: 1rem;">Your responses have been securely transmitted to HQ.</p>
         </div>
         
         <div class="card">
@@ -588,26 +537,20 @@
                 <div class="value" id="final-session-id">------</div>
             </div>
             
-            <div class="results-summary">
-                <div class="result-box yes">
-                    <div class="value" id="yes-count">0</div>
-                    <div class="label">Yes Responses</div>
-                </div>
-                <div class="result-box no">
-                    <div class="value" id="no-count">0</div>
-                    <div class="label">No Responses</div>
-                </div>
-            </div>
-            
             <div class="session-info">
                 <div class="label">Time Used</div>
                 <div class="value" id="time-used">--:--</div>
+            </div>
+            
+            <div class="session-info">
+                <div class="label">Questions Answered</div>
+                <div class="value" id="final-answered">20 / 20</div>
             </div>
         </div>
         
         <div class="card">
             <h2>What Happens Next</h2>
-            <p style="color: #ccc;">Your responses have been recorded. Your instructor will review your answers against the scenario requirements and provide feedback.</p>
+            <p style="color: #ccc;">Your responses have been recorded and will be reviewed by your instructor. Results will be provided separately.</p>
         </div>
     </div>
     
@@ -617,123 +560,124 @@
     </div>
     
     <script>
-        // 100 Yes/No Questions
+        // 100 Yes/No Questions - Harder, more nuanced, ~50/50 correct answer split
+        // Format: [question, correctAnswer] where correctAnswer is 'yes' or 'no'
         const questionBank = [
-            // Category A: Immediate Risk Assessment (15 questions)
-            "Is the arrest risk for executives attempting face-to-face communication with Chinese staff about the relocation higher than 50%?",
-            "Do you believe Chinese authorities already know about the U.S. government directive to your company?",
-            "Should your team assume all digital communications in China are being monitored?",
-            "Does the BorgWarner arrest significantly change your risk assessment compared to one week ago?",
-            "Is a meeting in Hong Kong materially safer than a meeting in Shenzhen for discussing the relocation?",
-            "Should you have an immediate response protocol ready in case an executive is detained?",
-            "Is the risk of detention higher for executives who speak Mandarin fluently?",
-            "Should executives avoid traveling to mainland China until the relocation is complete?",
-            "Is it safer to communicate the relocation plan through local Chinese intermediaries?",
-            "Do you believe your company's communications have already been compromised?",
-            "Should you assume that Chinese employees with government connections will report conversations to authorities?",
-            "Is the current political climate more dangerous for American executives than at any point in the past decade?",
-            "Should family members of key executives leave China before the relocation is announced?",
-            "Is there a meaningful risk that Chinese authorities could use employees as leverage against the company?",
-            "Should you recommend that executives update their wills before proceeding?",
+            // Category A: Risk Assessment - Nuanced (15 questions)
+            ["Given the BorgWarner precedent, is the risk of executive detention during routine business travel to Shenzhen now above 25%?", "yes"],
+            ["Would conducting the relocation planning meeting in a private Hong Kong hotel room provide adequate protection against surveillance?", "no"],
+            ["Is it reasonable to assume that Chinese authorities have already identified which of your employees work on defense-related projects?", "yes"],
+            ["Does the fact that your company has operated in China for 15 years without incident reduce your current risk profile?", "no"],
+            ["Would flying executives out of China before any announcement eliminate the risk of retaliatory detention?", "no"],
+            ["Is the arrest risk materially different for a U.S. passport holder versus a dual citizen with Chinese heritage?", "yes"],
+            ["Should you assume that local Chinese HR staff will maintain confidentiality about the relocation if asked directly by authorities?", "no"],
+            ["Is it advisable to continue using WeChat for any business communications during this period?", "no"],
+            ["Does having a Chinese spouse increase an executive's vulnerability to coercive tactics by authorities?", "yes"],
+            ["Would the Chinese government view detaining a female executive differently than a male executive from a PR perspective?", "no"],
+            ["Is it safer to communicate sensitive information in Cantonese rather than Mandarin in Hong Kong?", "no"],
+            ["Should you assume that your company's VPN has been compromised by Chinese intelligence services?", "yes"],
+            ["Does the presence of a U.S. Consulate in Hong Kong provide meaningful protection for detained executives?", "no"],
+            ["Is the risk of detention higher during Chinese national holidays when courts are closed?", "yes"],
+            ["Would Chinese authorities be less likely to detain executives if the company publicly attributes the move to U.S. government pressure?", "no"],
             
             // Category B: Chinese Government Perspective (15 questions)
-            "Is the Chinese government more likely to view this relocation as an act of economic aggression than as routine business?",
-            "Do Decrees 834 and 835 create genuine legal exposure for your planned actions?",
-            "Would the Chinese government consider the relocation of defense-related production a matter of national security?",
-            "Is it likely that Chinese authorities will attempt to block the relocation through legal means?",
-            "Does the concept of 'face' require you to give Chinese officials advance notice of the relocation?",
-            "Would a public announcement of the relocation be seen as more provocative than a quiet departure?",
-            "Is the Chinese government likely to retaliate against employees who remain after the relocation?",
-            "Do you believe Chinese authorities would detain executives primarily for intelligence value rather than legal prosecution?",
-            "Is it possible to structure the relocation in a way that allows Chinese authorities to claim they approved it?",
-            "Would offering to maintain non-defense operations in China reduce the risk of government retaliation?",
-            "Is the timing of the relocation (during current US-China tensions) likely to increase government scrutiny?",
-            "Do you believe Chinese authorities distinguish between companies that comply quietly versus those that resist?",
-            "Would hiring a well-connected Chinese law firm reduce your legal exposure?",
-            "Is it likely that Chinese state media will publicize any executive detentions?",
-            "Do you believe the Chinese government views your company as strategically important enough to make an example of?",
+            ["Under China's counter-espionage laws, could sharing information about defense contract requirements with U.S. officials constitute a criminal act?", "yes"],
+            ["Is the Chinese government likely to distinguish between voluntary relocation and U.S.-mandated relocation when assessing your company's intentions?", "no"],
+            ["Would offering to license non-defense technology to a Chinese state-owned enterprise reduce government hostility to the relocation?", "no"],
+            ["Does China's 'unreliable entity list' mechanism pose a credible threat to your company's remaining operations?", "yes"],
+            ["Is it likely that Chinese authorities would accept a face-saving narrative that frames the relocation as 'restructuring' rather than 'withdrawal'?", "yes"],
+            ["Would proactively briefing the Ministry of Commerce reduce the risk of retaliatory action?", "no"],
+            ["Is the Chinese government more concerned about the loss of jobs or the loss of technology transfer?", "no"],
+            ["Could Chinese authorities legally prevent Chinese employees from accepting relocation offers to the United States?", "yes"],
+            ["Is it likely that Chinese state media has already prepared a narrative about your company in case of relocation?", "yes"],
+            ["Would hiring a former Chinese government official as a consultant improve your position?", "no"],
+            ["Does the Chinese government view Hong Kong as a legitimate venue for sensitive business discussions?", "no"],
+            ["Is it possible that Chinese intelligence has already placed sources within your workforce?", "yes"],
+            ["Would the Chinese government's response differ if your CEO made a personal appeal to senior officials?", "no"],
+            ["Is China likely to use this situation to send a broader message to other foreign companies?", "yes"],
+            ["Could Chinese authorities require exit permits for your Chinese employees with knowledge of defense work?", "yes"],
             
             // Category C: U.S. Government Perspective (10 questions)
-            "Will the U.S. government impose significant penalties if you fail to comply with the relocation directive?",
-            "Can the U.S. government provide meaningful protection to your personnel in China?",
-            "Should you request a meeting with the U.S. Consulate in Hong Kong before proceeding?",
-            "Would the U.S. government support a slower relocation timeline if you requested it?",
-            "Is there a risk that U.S. export control violations could result in criminal charges against executives?",
-            "Should you document all communications with U.S. government officials about this directive?",
-            "Would the U.S. government publicly support your company if executives are detained?",
-            "Is it possible to negotiate the scope of what must be relocated with U.S. officials?",
-            "Should you assume that U.S. government communications are also being monitored by China?",
-            "Is the U.S. government likely to be sympathetic to implementation challenges?",
+            ["Does the U.S. government have an obligation to negotiate for your executives' release if they are detained?", "no"],
+            ["Could failure to comply with the relocation directive result in criminal charges against company leadership under ITAR?", "yes"],
+            ["Is the U.S. government likely to approve a three-year phased relocation timeline?", "no"],
+            ["Would the State Department issue a public statement supporting your company if executives are detained?", "no"],
+            ["Does the Commerce Department have authority to grant exceptions to relocation requirements for humanitarian reasons?", "no"],
+            ["Is it advisable to hire a lobbying firm to negotiate the relocation terms with the Defense Department?", "no"],
+            ["Could the U.S. government restrict your ability to pay severance to Chinese employees under sanctions law?", "yes"],
+            ["Is the U.S. government tracking which American executives are currently in China?", "yes"],
+            ["Would voluntary early compliance with the directive improve your company's position for future defense contracts?", "yes"],
+            ["Does the FBI have jurisdiction to investigate if Chinese authorities detain your executives?", "no"],
             
             // Category D: Strategic Options (15 questions)
-            "Should you accelerate the relocation timeline despite the increased risk?",
-            "Is it advisable to relocate key personnel before communicating the business decision to Chinese staff?",
-            "Could Singapore serve as a viable intermediate location for relocated operations?",
-            "Should you consider abandoning the defense contract rather than relocating production?",
-            "Is it possible to separate the defense work from other operations to minimize the scope of relocation?",
-            "Should you recommend a complete exit from China rather than a partial relocation?",
-            "Is it advisable to announce the relocation publicly as a response to U.S. government requirements?",
-            "Should the company consider selling its Chinese operations to a local buyer?",
-            "Is it possible to license the non-defense technology to a Chinese partner as part of the exit?",
-            "Should you recommend bringing in a crisis management firm with China experience?",
-            "Is it advisable to have multiple relocation plans ready depending on how events unfold?",
-            "Should you consider temporarily suspending all defense-related work in China immediately?",
-            "Is it possible to relocate production in phases to minimize disruption?",
-            "Should the company establish operations in Vietnam as an alternative to returning to the U.S.?",
-            "Is it advisable to proactively brief Chinese officials on the U.S. government directive?",
+            ["Is establishing a shell company in Singapore to continue Chinese operations a viable strategy?", "no"],
+            ["Would announcing a major charitable donation to a Chinese university reduce government hostility?", "no"],
+            ["Is it advisable to relocate defense operations to Vietnam rather than the United States?", "no"],
+            ["Should you recommend the board consider selling the entire company to avoid this dilemma?", "no"],
+            ["Would a joint venture with a Chinese state-owned enterprise allow you to maintain some presence?", "no"],
+            ["Is accelerating the timeline to complete relocation within 90 days advisable given current risks?", "yes"],
+            ["Should you consider spinning off the defense business as a separate U.S.-only entity?", "yes"],
+            ["Is it strategically sound to announce layoffs in non-defense divisions simultaneously to provide cover?", "no"],
+            ["Would retaining a skeleton staff in China for 'liaison purposes' reduce political friction?", "no"],
+            ["Should you recommend that the board hire a Chinese law firm to represent company interests?", "no"],
+            ["Is it advisable to brief your largest Chinese customers before making any public announcement?", "no"],
+            ["Would prepaying Chinese suppliers for six months reduce the risk of supply chain retaliation?", "no"],
+            ["Should you consider transferring intellectual property to a U.S. subsidiary before announcing the relocation?", "yes"],
+            ["Is it worth attempting to negotiate a government-to-government agreement to cover the relocation?", "no"],
+            ["Would offering premium severance packages to Chinese employees reduce legal exposure under Chinese labor law?", "yes"],
             
-            // Category E: Human Resources Specifics (15 questions)
-            "Can you identify which personnel have knowledge that makes them high-risk for detention?",
-            "Should you offer relocation packages to Chinese employees who want to leave?",
-            "Is it advisable to continue paying Chinese employees during a transition period after operations cease?",
-            "Should employees with family members in the Chinese government or military be handled differently?",
-            "Is there a legal way to prevent knowledge transfer to competitors during this transition?",
-            "Should you provide psychological support services to expatriate staff?",
-            "Is it advisable to offer early retirement packages to senior Chinese employees?",
-            "Should you help Chinese employees find positions at other foreign companies in China?",
-            "Is it possible to maintain any ongoing relationship with former Chinese employees?",
-            "Should American employees be given the option to resign rather than participate in the relocation?",
-            "Is it advisable to bring in local HR consultants to manage the Chinese workforce transition?",
-            "Should you assume that some Chinese employees will refuse to cooperate with the relocation?",
-            "Is it appropriate to ask Chinese employees to sign non-disclosure agreements about the relocation?",
-            "Should the company provide legal representation to employees who face government questioning?",
-            "Is it possible to maintain employee morale during a drawn-out relocation process?",
+            // Category E: Human Resources (15 questions)
+            ["Should Chinese employees with access to defense-related information be placed on administrative leave immediately?", "yes"],
+            ["Is it legal under Chinese law to require employees to sign new confidentiality agreements during this transition?", "yes"],
+            ["Would offering green card sponsorship to key Chinese employees create legal complications under Chinese exit controls?", "yes"],
+            ["Should you assume that at least some Chinese employees are obligated to report to state security services?", "yes"],
+            ["Is it advisable to terminate the employment of Chinese employees before they are questioned by authorities?", "no"],
+            ["Would providing written severance terms to Chinese employees create discoverable evidence for prosecutors?", "yes"],
+            ["Should expatriate employees be advised to send their families home before any announcement?", "yes"],
+            ["Is it ethical to ask American employees to remain in China during the transition if you believe there is detention risk?", "no"],
+            ["Would Chinese employees be legally protected from termination if they refuse to sign transition documents?", "yes"],
+            ["Should you offer to pay for legal representation for Chinese employees who are questioned by authorities?", "yes"],
+            ["Is it advisable to conduct exit interviews with Chinese employees before they leave the company?", "no"],
+            ["Would paying Chinese employees in cryptocurrency reduce the company's exposure to asset freezes?", "no"],
+            ["Should you recommend that American employees delete all personal photos and messages from their phones before leaving China?", "yes"],
+            ["Is the company obligated to inform Chinese employees about potential risks they face by having worked on defense projects?", "yes"],
+            ["Would establishing an employee assistance fund for Chinese workers' families reduce legal and reputational risk?", "yes"],
             
             // Category F: Operational Security (10 questions)
-            "Should you assume this meeting room may be under surveillance?",
-            "Is it advisable to use only verbal communication for sensitive planning?",
-            "Should you verify the secure app has not been compromised before using it?",
-            "Is it safe to assume your mobile phones are being monitored?",
-            "Should you establish code words for sensitive topics in case communications are intercepted?",
-            "Is the MacLehose Trail hike tomorrow a reasonably secure venue for planning?",
-            "Should you vary your routine to avoid predictable patterns that could facilitate surveillance?",
-            "Is it advisable to have a protocol for destroying sensitive documents?",
-            "Should you assume that hotel staff may be reporting to authorities?",
-            "Is it possible to identify if you are currently under active surveillance?",
+            ["Is it safe to assume that this conversation in a Hong Kong hotel is not being monitored?", "no"],
+            ["Would using a satellite phone provide secure communications in mainland China?", "no"],
+            ["Should you assume that the 'secure app' recommended by your IT department has been compromised?", "yes"],
+            ["Is the MacLehose Trail hike a reasonably secure venue for discussing the relocation plan?", "yes"],
+            ["Would conducting planning meetings on a private yacht in Hong Kong waters provide adequate security?", "no"],
+            ["Should you assume that any written notes from this meeting will eventually be obtained by Chinese authorities?", "yes"],
+            ["Is it advisable to use code words for sensitive topics in all communications going forward?", "yes"],
+            ["Would flying to Tokyo for a one-day planning meeting be worth the security improvement?", "yes"],
+            ["Should you assume your hotel room has been searched during your absence?", "yes"],
+            ["Is it safe to discuss contingency plans with the Regional VP of Operations before verifying their loyalty?", "no"],
             
             // Category G: Cultural Intelligence (10 questions)
-            "Does Trompenaars' universalism vs. particularism dimension suggest Chinese employees will view this situation differently than Americans?",
-            "According to GLOBE research, does China's high uncertainty avoidance suggest employees will resist sudden changes?",
-            "Is it appropriate to use intermediaries when delivering difficult news to Chinese employees?",
-            "Should you adapt your communication style significantly for Chinese versus American audiences?",
-            "Is the concept of 'guanxi' relevant to how you should handle government relations during this crisis?",
-            "Would Chinese employees expect more indirect communication about the relocation than Americans?",
-            "Is it culturally appropriate to emphasize collective benefits when explaining the relocation to Chinese staff?",
-            "Should you consider the hierarchical expectations of Chinese employees when planning communications?",
-            "Is 'saving face' for Chinese employees a legitimate strategic concern in this situation?",
-            "Would Chinese business culture expect you to have built relationships with local officials before this crisis?",
+            ["According to Hofstede's research, would Chinese employees expect more direct communication about layoffs than American employees?", "no"],
+            ["Does Trompenaars' concept of 'diffuse vs. specific' cultures suggest that Chinese employees will take the relocation more personally?", "yes"],
+            ["Would providing extensive written justification for the relocation satisfy Chinese employees' need for context?", "no"],
+            ["Is it culturally appropriate to have a junior HR manager deliver the relocation news to senior Chinese employees?", "no"],
+            ["Does the GLOBE study's finding on Chinese institutional collectivism suggest employees will prioritize company interests over personal safety?", "no"],
+            ["Would Chinese employees expect the company to consult with their families before asking them to relocate?", "yes"],
+            ["Is it appropriate to offer Chinese employees time to 'save face' by resigning rather than being terminated?", "yes"],
+            ["Does the concept of guanxi obligate the company to help Chinese employees find new positions?", "yes"],
+            ["Would Chinese employees view an American-style 'town hall' announcement as appropriate for this news?", "no"],
+            ["Is it culturally advisable to have a Chinese executive deliver bad news to Chinese employees rather than an American?", "yes"],
             
             // Category H: Historical Precedent (10 questions)
-            "Does the detention of Huawei CFO Meng Wanzhou suggest that senior executives are at particular risk?",
-            "Does the case of Michael Kovrig and Michael Spavor indicate that Canada-style diplomatic incidents could affect Americans?",
-            "Do the experiences of Rio Tinto, Qualcomm, and GSK suggest that cooperation with authorities reduces penalties?",
-            "Does the NBA's experience in 2019 suggest that public statements can escalate tensions with China?",
-            "Based on historical cases, is the typical resolution timeline for executive detentions measured in months or years?",
-            "Do historical precedents suggest that smaller companies face less scrutiny than major multinationals?",
-            "Have previous U.S.-China tensions resulted in widespread detention of American business executives?",
-            "Do historical cases suggest that companies with strong local partnerships fare better in crises?",
-            "Is there precedent for successful quiet departures from China without government retaliation?",
-            "Do historical patterns suggest that the current political environment is unusually dangerous?"
+            ["Does the three-year detention of Michael Kovrig and Michael Spavor suggest that quick resolution is unlikely if executives are detained?", "yes"],
+            ["Did Google's 2010 exit from China result in retaliatory detention of employees?", "no"],
+            ["Does the Huawei CFO case suggest that China views executive detention as an acceptable diplomatic tool?", "yes"],
+            ["Did foreign companies that cooperated with Chinese investigations during anti-corruption campaigns receive better treatment?", "no"],
+            ["Does the Rio Tinto case suggest that even minor procedural violations can result in multi-year prison sentences?", "yes"],
+            ["Have companies that maintained a low public profile during China exits experienced fewer retaliatory actions?", "yes"],
+            ["Does the NBA incident suggest that Chinese consumers will boycott companies perceived as hostile to China?", "yes"],
+            ["Did companies that exited China during previous political tensions successfully return later?", "yes"],
+            ["Does the pattern of detentions suggest that China targets individuals with valuable intelligence rather than random executives?", "yes"],
+            ["Have multilateral corporate statements criticizing Chinese government actions provided protection to individual companies?", "no"]
         ];
         
         // Distribute questions into categories for balanced selection
@@ -789,9 +733,10 @@
                 questionDiv.innerHTML = `
                     <div class="question-header">
                         <div class="question-number">QUESTION ${i + 1} OF 20</div>
+                        <div class="locked-badge" id="lock-${i}" style="display: none;">LOCKED</div>
                     </div>
-                    <div class="question-text">${questionBank[qIndex]}</div>
-                    <div class="answer-buttons">
+                    <div class="question-text">${questionBank[qIndex][0]}</div>
+                    <div class="answer-buttons" id="buttons-${i}">
                         <button class="answer-btn yes-btn" onclick="selectAnswer(${i}, 'yes')">Yes</button>
                         <button class="answer-btn no-btn" onclick="selectAnswer(${i}, 'no')">No</button>
                     </div>
@@ -811,23 +756,32 @@
         }
         
         function selectAnswer(questionIndex, answer) {
+            // Prevent changing answer if already locked
+            if (answers[questionIndex] !== undefined) {
+                return;
+            }
+            
             answers[questionIndex] = answer;
             
-            // Update UI
+            // Lock the buttons
             const card = document.getElementById(`question-${questionIndex}`);
-            card.classList.remove('answered-yes', 'answered-no');
-            card.classList.add(`answered-${answer}`);
+            card.classList.add('answered');
             
-            const yesBtn = card.querySelector('.yes-btn');
-            const noBtn = card.querySelector('.no-btn');
-            yesBtn.classList.remove('selected');
-            noBtn.classList.remove('selected');
+            const buttons = document.getElementById(`buttons-${questionIndex}`);
+            const yesBtn = buttons.querySelector('.yes-btn');
+            const noBtn = buttons.querySelector('.no-btn');
+            
+            yesBtn.classList.add('locked');
+            noBtn.classList.add('locked');
             
             if (answer === 'yes') {
                 yesBtn.classList.add('selected');
             } else {
                 noBtn.classList.add('selected');
             }
+            
+            // Show locked badge
+            document.getElementById(`lock-${questionIndex}`).style.display = 'block';
             
             // Update progress
             updateProgress();
@@ -879,38 +833,40 @@
                 clearInterval(timerInterval);
             }
             
-            // Calculate results
-            let yesCount = 0;
-            let noCount = 0;
-            Object.values(answers).forEach(a => {
-                if (a === 'yes') yesCount++;
-                else noCount++;
-            });
-            
             // Calculate time used
             const endTime = new Date();
             const timeUsedMs = endTime - startTime;
             const timeUsedMin = Math.floor(timeUsedMs / 60000);
             const timeUsedSec = Math.floor((timeUsedMs % 60000) / 1000);
             
-            // Update complete screen
+            // Calculate score (for storage only, not shown to student)
+            let correct = 0;
+            selectedQuestions.forEach((qIndex, i) => {
+                if (answers[i] === questionBank[qIndex][1]) {
+                    correct++;
+                }
+            });
+            
+            // Update complete screen (no score shown)
             document.getElementById('final-session-id').textContent = sessionId;
-            document.getElementById('yes-count').textContent = yesCount;
-            document.getElementById('no-count').textContent = noCount;
             document.getElementById('time-used').textContent = 
                 `${timeUsedMin.toString().padStart(2, '0')}:${timeUsedSec.toString().padStart(2, '0')}`;
+            document.getElementById('final-answered').textContent = `${answeredCount} / 20`;
             
-            // Save results
+            // Save results (for instructor)
             const results = {
                 sessionId: sessionId,
-                questions: selectedQuestions,
+                questions: selectedQuestions.map(qi => questionBank[qi][0]),
+                questionIndices: selectedQuestions,
                 answers: answers,
-                yesCount: yesCount,
-                noCount: noCount,
+                correctAnswers: selectedQuestions.map(qi => questionBank[qi][1]),
+                score: correct,
+                total: 20,
+                percentage: Math.round((correct / 20) * 100),
                 timeUsed: `${timeUsedMin}:${timeUsedSec.toString().padStart(2, '0')}`,
                 timestamp: new Date().toISOString()
             };
-            localStorage.setItem('xyz_results', JSON.stringify(results));
+            localStorage.setItem('xyz_results_' + sessionId, JSON.stringify(results));
             
             // Show complete screen
             document.getElementById('questions-screen').style.display = 'none';
@@ -921,9 +877,8 @@
             const selected = [];
             const categoryList = Object.keys(categories);
             
-            // Ensure at least 2 from each category, then fill randomly
-            // With 8 categories and 20 questions, we take 2-3 from each
-            const perCategory = [3, 3, 2, 3, 3, 2, 2, 2]; // = 20 total
+            // Ensure balance: 3,3,2,3,3,2,2,2 = 20 total
+            const perCategory = [3, 3, 2, 3, 3, 2, 2, 2];
             
             categoryList.forEach((cat, idx) => {
                 const catQuestions = categories[cat];
