@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XYZ Corp Crisis Simulation | MGMT 494BI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --umass-maroon: #881c1c;
+            --umass-maroon-dark: #6a1515;
+            --text: #1a1a1a;
+            --text-light: #555;
+            --bg: #fafafa;
+            --card-bg: #ffffff;
+            --border: #e0e0e0;
+            --warning: #f59e0b;
+            --warning-bg: #fef3c7;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+        
+        .header {
+            background: var(--umass-maroon);
+            color: white;
+            padding: 1.5rem 2rem;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .header .subtitle {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+        
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .card h2 {
+            font-size: 1.2rem;
+            color: var(--umass-maroon);
+            margin-bottom: 1rem;
+        }
+        
+        .warning-box {
+            background: var(--warning-bg);
+            border-left: 4px solid var(--warning);
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.5rem;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .warning-box strong {
+            color: #92400e;
+        }
+        
+        /* Access Code Screen */
+        #access-screen {
+            text-align: center;
+            padding: 3rem 1rem;
+        }
+        
+        #access-screen h2 {
+            margin-bottom: 1rem;
+        }
+        
+        .code-input {
+            font-size: 1.5rem;
+            padding: 0.75rem 1.5rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            text-align: center;
+            width: 200px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+        }
+        
+        .code-input:focus {
+            outline: none;
+            border-color: var(--umass-maroon);
+        }
+        
+        .btn {
+            background: var(--umass-maroon);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: background 0.2s;
+        }
+        
+        .btn:hover {
+            background: var(--umass-maroon-dark);
+        }
+        
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .error-msg {
+            color: #dc2626;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        /* Simulation Screen */
+        #simulation-screen {
+            display: none;
+        }
+        
+        .scenario-brief {
+            font-size: 0.95rem;
+            color: var(--text-light);
+        }
+        
+        .scenario-brief p {
+            margin-bottom: 1rem;
+        }
+        
+        .question-card {
+            background: #f8f9fa;
+            border: 2px solid var(--umass-maroon);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .question-number {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--umass-maroon);
+            margin-bottom: 0.5rem;
+        }
+        
+        .question-text {
+            font-size: 1.1rem;
+            font-weight: 500;
+            line-height: 1.5;
+        }
+        
+        .instructions-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .instructions-list li {
+            padding: 0.5rem 0;
+            padding-left: 2rem;
+            position: relative;
+        }
+        
+        .instructions-list li::before {
+            content: attr(data-step);
+            position: absolute;
+            left: 0;
+            width: 1.5rem;
+            height: 1.5rem;
+            background: var(--umass-maroon);
+            color: white;
+            border-radius: 50%;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .email-link {
+            display: inline-block;
+            background: var(--umass-maroon);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            margin-top: 0.5rem;
+        }
+        
+        .email-link:hover {
+            background: var(--umass-maroon-dark);
+        }
+        
+        .student-id-display {
+            font-family: monospace;
+            background: #f0f0f0;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            display: inline-block;
+            margin: 0.5rem 0;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-light);
+            font-size: 0.85rem;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .card {
+                padding: 1.5rem;
+            }
+            
+            .question-text {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>XYZ Corp Crisis Simulation</h1>
+        <div class="subtitle">MGMT 494BI: Business Policy & Strategy</div>
+    </div>
+    
+    <!-- Access Code Screen -->
+    <div id="access-screen" class="container">
+        <div class="card">
+            <h2>Enter Access Code</h2>
+            <p style="margin-bottom: 1.5rem; color: var(--text-light);">Your instructor will provide the access code.</p>
+            <input type="text" id="access-code" class="code-input" maxlength="6" placeholder="------" autocomplete="off">
+            <br>
+            <button class="btn" onclick="checkAccess()">Begin Simulation</button>
+            <p id="error-message" class="error-msg" style="display: none;"></p>
+        </div>
+    </div>
+    
+    <!-- Simulation Screen -->
+    <div id="simulation-screen" class="container">
+        <div class="warning-box">
+            <strong>⚠️ Important:</strong> Your questions are unique to you. Do not share them with classmates. Record your answers and submit within 48 hours.
+        </div>
+        
+        <div class="card">
+            <h2>Your Unique Session ID</h2>
+            <p>Include this ID in your submission filename:</p>
+            <div class="student-id-display" id="session-id">---</div>
+        </div>
+        
+        <div class="card">
+            <h2>The Situation</h2>
+            <div class="scenario-brief">
+                <p>You are the <strong>Regional Vice President of Human Resources</strong> for XYZ Corp, based in Hong Kong. Your company manufactures components for toys and, recently classified, for military applications — specifically propellers for surveillance drones used at U.S. military bases.</p>
+                
+                <p>The U.S. government has directed you to relocate production to the United States. The team working on these parts must be removed from China.</p>
+                
+                <p><strong>The complication:</strong> Three days ago, BorgWarner executives were arrested in Shanghai while communicating with staff about similar restrictions. They remain under house arrest.</p>
+                
+                <p>Your Technology Security Department has told you: <strong>no internet, no email, meetings in person only, nothing in writing</strong>. Assume all digital communication is compromised.</p>
+                
+                <p>Tomorrow morning, you will hike the MacLehose Trail with the Regional VP of Operations and the Regional President — a chance to plan without surveillance. Later, you will present your recommendations via secure app.</p>
+                
+                <p><strong>You have 30 years in China, speak the language, and have seen a lot.</strong> Your colleagues are looking to you for the plan.</p>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Your Questions</h2>
+            <p style="margin-bottom: 1.5rem; color: var(--text-light);">Answer each question verbally in your recording. Aim for 60-90 seconds per question.</p>
+            <div id="questions-container">
+                <!-- Questions will be inserted here -->
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Submission Instructions</h2>
+            <ol class="instructions-list">
+                <li data-step="1">Record yourself answering all questions above (audio or video)</li>
+                <li data-step="2">Name your file: <strong>494BI_XYZ_[YourLastName]_[SessionID].mp3</strong></li>
+                <li data-step="3">Email your recording to the address below</li>
+                <li data-step="4">Deadline: 48 hours from now</li>
+            </ol>
+            <br>
+            <a href="mailto:mlangenkamp@umass.edu?subject=494BI%20XYZ%20Simulation%20Submission" class="email-link">📧 Submit via Email</a>
+        </div>
+        
+        <div class="card">
+            <h2>Grading Criteria</h2>
+            <ul style="padding-left: 1.25rem;">
+                <li><strong>Risk Awareness</strong> (25%) — Understanding of legal, detention, and surveillance risks</li>
+                <li><strong>Cultural Intelligence</strong> (25%) — Application of Trompenaars, GLOBE, face, guanxi</li>
+                <li><strong>Strategic Thinking</strong> (25%) — Coherent plan balancing competing demands</li>
+                <li><strong>Historical Grounding</strong> (15%) — Use of precedents (Kovrig/Spavor, Rio Tinto, etc.)</li>
+                <li><strong>Communication Clarity</strong> (10%) — Clear, organized, within time limits</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="footer">
+        MGMT 494BI: Business Policy & Strategy<br>
+        Isenberg School of Management, UMass Amherst
+    </div>
+    
+    <script>
+        // Question bank - all 50 questions
+        const questionBank = [
+            // Category A: Immediate Risk Assessment
+            "What is your assessment of the arrest risk for your team if they attempt to communicate the relocation plan to Chinese staff?",
+            "How do you evaluate the likelihood that Chinese authorities already know about the U.S. government directive to your company?",
+            "What signals should your team watch for that would indicate increased surveillance or imminent detention risk?",
+            "How does the BorgWarner arrest change your risk calculus compared to one week ago?",
+            "What is the risk profile difference between a Hong Kong-based meeting versus a Shenzhen-based meeting for this discussion?",
+            "If Chinese authorities detain one of your executives, what is your immediate response protocol?",
+            
+            // Category B: Chinese Government Perspective
+            "Using the lens of Chinese strategic culture, why might the government choose to arrest American executives rather than simply block the relocation?",
+            "How do Decrees 834 and 835 create a legal framework that makes your planned actions potentially criminal under Chinese law?",
+            "What historical precedents from Chinese government behavior toward foreign companies inform your planning?",
+            "How might the Chinese government view the timing and method of your planned staff communications?",
+            "What role does 'face' play in how you should handle communications with Chinese employees and officials?",
+            "How does the concept of guanxi affect your options and constraints in this situation?",
+            
+            // Category C: U.S. Government Perspective
+            "What are the consequences to your company if you fail to comply with the U.S. government directive?",
+            "How do U.S. export control laws interact with Chinese counter-espionage laws in your situation?",
+            "What protections, if any, can the U.S. government provide to your personnel in China?",
+            "How should you communicate with U.S. government officials about implementation challenges?",
+            
+            // Category D: Strategic Options
+            "What are the arguments for and against accelerating the relocation versus slowing it down?",
+            "Should you consider relocating personnel before communicating the business decision to Chinese staff?",
+            "What role could a third country (Singapore, Vietnam, Thailand) play in your relocation strategy?",
+            "How might you structure communications to Chinese staff to minimize legal exposure under Chinese law?",
+            "Should your company consider abandoning the defense contract rather than relocating production?",
+            "What is your recommendation for handling the 1,000+ employees in divisions not affected by the defense restriction?",
+            
+            // Category E: Human Resources Specifics
+            "How do you identify which personnel have knowledge that makes them high-risk for detention?",
+            "What severance or transition support can you offer Chinese employees without triggering legal exposure?",
+            "How do you handle Chinese employees with family members in government or military positions?",
+            "What is your plan for employees who refuse to relocate?",
+            "How do you prevent knowledge transfer to competitors during this transition?",
+            "What psychological support do you provide to expatriate staff who are frightened?",
+            
+            // Category F: Operational Security
+            "How confident are you that this hotel meeting room is actually secure?",
+            "What is your communication protocol if a team member is detained during the relocation process?",
+            "How do you verify that your secure app has not been compromised?",
+            "Should family members of key personnel be relocated before the plan is announced?",
+            "What is your protocol for the hike tomorrow if you notice surveillance?",
+            
+            // Category G: Cultural Intelligence
+            "How do Trompenaars' dimensions of universalism versus particularism and individualism versus communitarianism apply to how Chinese employees will receive this news?",
+            "According to GLOBE Project research, how do Chinese and American cultures differ on uncertainty avoidance, and how does this affect your planning?",
+            "How should you adapt your communication style for Chinese employees versus your American headquarters?",
+            "What role do intermediaries play in Chinese business culture, and how might you use them?",
+            
+            // Category H: Historical Precedent
+            "What lessons from the detention of Huawei CFO Meng Wanzhou apply to your situation?",
+            "How does the case of Michael Kovrig and Michael Spavor inform your risk assessment?",
+            "What can you learn from how other companies like Rio Tinto, Qualcomm, and GSK handled Chinese government investigations?",
+            "How did the NBA's experience with China in 2019 demonstrate the risks of public communication?",
+            "What does the history of foreign executives detained in China tell you about typical resolution timelines?",
+            
+            // Category I: Game Theory and Negotiation
+            "If you assume Chinese authorities know your plan, how does that change your strategy?",
+            "What is your BATNA — your Best Alternative to Negotiated Agreement — in this situation?",
+            "How might you create options that allow the Chinese government to save face while you achieve your objectives?",
+            "What moves might the Chinese government make to block your relocation, and how do you counter each?",
+            "Is there a scenario where cooperation with Chinese authorities produces a better outcome than covert action?",
+            
+            // Category J: The Presentation
+            "If you have only three minutes, what are the three most critical points you must convey to headquarters?",
+            "How do you frame risk in a way that enables decision-making rather than paralysis?",
+            "What decision do you need from headquarters to proceed?"
+        ];
+        
+        // Category distribution for balanced selection
+        const categories = {
+            A: [0, 1, 2, 3, 4, 5],           // Risk Assessment
+            B: [6, 7, 8, 9, 10, 11],         // Chinese Government
+            C: [12, 13, 14, 15],             // U.S. Government
+            D: [16, 17, 18, 19, 20, 21],     // Strategic Options
+            E: [22, 23, 24, 25, 26, 27],     // HR Specifics
+            F: [28, 29, 30, 31, 32],         // Operational Security
+            G: [33, 34, 35, 36],             // Cultural Intelligence
+            H: [37, 38, 39, 40, 41],         // Historical Precedent
+            I: [42, 43, 44, 45, 46],         // Game Theory
+            J: [47, 48, 49]                  // Presentation
+        };
+        
+        // Access code (simple for now - can be changed)
+        const VALID_CODES = ['TRAIL26', 'XYZ494', 'HKEXEC'];
+        
+        function checkAccess() {
+            const code = document.getElementById('access-code').value.toUpperCase().trim();
+            const errorEl = document.getElementById('error-message');
+            
+            if (VALID_CODES.includes(code)) {
+                document.getElementById('access-screen').style.display = 'none';
+                document.getElementById('simulation-screen').style.display = 'block';
+                generateQuestions();
+            } else {
+                errorEl.textContent = 'Invalid access code. Please check with your instructor.';
+                errorEl.style.display = 'block';
+            }
+        }
+        
+        function generateQuestions() {
+            // Generate unique session ID
+            const sessionId = generateSessionId();
+            document.getElementById('session-id').textContent = sessionId;
+            
+            // Select questions with category balance
+            const selectedQuestions = selectBalancedQuestions(4);
+            
+            // Display questions
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
+            
+            selectedQuestions.forEach((qIndex, i) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question-card';
+                questionDiv.innerHTML = `
+                    <div class="question-number">Question ${i + 1} of ${selectedQuestions.length}</div>
+                    <div class="question-text">${questionBank[qIndex]}</div>
+                `;
+                container.appendChild(questionDiv);
+            });
+            
+            // Store in localStorage for reference
+            localStorage.setItem('xyz_session', JSON.stringify({
+                sessionId: sessionId,
+                questions: selectedQuestions,
+                timestamp: new Date().toISOString()
+            }));
+        }
+        
+        function selectBalancedQuestions(count) {
+            const selected = [];
+            const usedCategories = new Set();
+            
+            // Must include: A (Risk), B (Chinese Gov), D (Strategic)
+            const required = ['A', 'B', 'D'];
+            required.forEach(cat => {
+                const options = categories[cat];
+                const pick = options[Math.floor(Math.random() * options.length)];
+                selected.push(pick);
+                usedCategories.add(cat);
+            });
+            
+            // Fill remaining from other categories
+            const otherCats = Object.keys(categories).filter(c => !usedCategories.has(c));
+            while (selected.length < count) {
+                const cat = otherCats[Math.floor(Math.random() * otherCats.length)];
+                const options = categories[cat];
+                const pick = options[Math.floor(Math.random() * options.length)];
+                if (!selected.includes(pick)) {
+                    selected.push(pick);
+                }
+            }
+            
+            // Shuffle order
+            return selected.sort(() => Math.random() - 0.5);
+        }
+        
+        function generateSessionId() {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let id = '';
+            for (let i = 0; i < 6; i++) {
+                id += chars[Math.floor(Math.random() * chars.length)];
+            }
+            return id;
+        }
+        
+        // Allow Enter key to submit
+        document.getElementById('access-code').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkAccess();
+            }
+        });
+    </script>
+</body>
+</html>
