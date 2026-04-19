@@ -19,6 +19,8 @@
             --accent: #00ff88;
             --warning: #ff6b35;
             --timer-bg: #1a1a1a;
+            --yes-color: #00ff88;
+            --no-color: #ff4444;
         }
         
         * {
@@ -295,12 +297,33 @@
             text-transform: uppercase;
         }
         
+        .progress-info {
+            text-align: right;
+        }
+        
+        .progress-text {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent);
+            font-size: 1rem;
+        }
+        
         .question-card {
             background: var(--card-bg);
             border: 1px solid var(--border);
             border-radius: 8px;
             padding: 1.5rem;
             margin-bottom: 1rem;
+            transition: border-color 0.2s;
+        }
+        
+        .question-card.answered-yes {
+            border-color: var(--yes-color);
+            background: rgba(0, 255, 136, 0.05);
+        }
+        
+        .question-card.answered-no {
+            border-color: var(--no-color);
+            background: rgba(255, 68, 68, 0.05);
         }
         
         .question-header {
@@ -320,14 +343,67 @@
         }
         
         .question-text {
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             line-height: 1.6;
+            color: #fff;
+            margin-bottom: 1.25rem;
+        }
+        
+        .answer-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .answer-btn {
+            flex: 1;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: transparent;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .answer-btn:hover {
+            border-color: #666;
+            color: #fff;
+        }
+        
+        .answer-btn.yes-btn.selected {
+            background: var(--yes-color);
+            border-color: var(--yes-color);
+            color: #0a0a0a;
+        }
+        
+        .answer-btn.no-btn.selected {
+            background: var(--no-color);
+            border-color: var(--no-color);
             color: #fff;
         }
         
         .submit-section {
             text-align: center;
             margin-top: 2rem;
+            padding: 2rem;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+        
+        .submit-section p {
+            color: #888;
+            margin-bottom: 1rem;
+        }
+        
+        .unanswered-warning {
+            color: var(--warning);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
         }
         
         /* Complete Screen */
@@ -341,53 +417,55 @@
             margin-bottom: 1rem;
         }
         
-        .instructions-list {
-            list-style: none;
-            padding: 0;
+        .score-display {
+            text-align: center;
+            padding: 2rem;
+            background: #0a0a0a;
+            border-radius: 8px;
+            margin: 1.5rem 0;
         }
         
-        .instructions-list li {
-            padding: 0.75rem 0;
-            padding-left: 2.5rem;
-            position: relative;
-            border-bottom: 1px solid var(--border);
+        .score-display .score-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--accent);
         }
         
-        .instructions-list li:last-child {
-            border-bottom: none;
+        .score-display .score-label {
+            color: #888;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
         }
         
-        .instructions-list li::before {
-            content: attr(data-step);
-            position: absolute;
-            left: 0;
-            width: 1.75rem;
-            height: 1.75rem;
-            background: var(--accent);
-            color: #0a0a0a;
-            border-radius: 50%;
-            font-size: 0.85rem;
+        .results-summary {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .result-box {
+            background: #0a0a0a;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .result-box .value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
             font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
         
-        .email-link {
-            display: inline-block;
-            background: var(--accent);
-            color: #0a0a0a;
-            padding: 0.75rem 1.5rem;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: 600;
-            margin-top: 1rem;
-            transition: all 0.2s;
+        .result-box .label {
+            font-size: 0.8rem;
+            color: #888;
+            margin-top: 0.25rem;
         }
         
-        .email-link:hover {
-            background: #00cc6a;
-        }
+        .result-box.yes .value { color: var(--yes-color); }
+        .result-box.no .value { color: var(--no-color); }
         
         .footer {
             text-align: center;
@@ -409,6 +487,10 @@
             
             .timer {
                 font-size: 1.5rem;
+            }
+            
+            .answer-buttons {
+                flex-direction: column;
             }
         }
     </style>
@@ -441,9 +523,9 @@
             <div class="briefing-text">
                 <p>You have successfully connected to the secure communication channel with <strong>XYZ Corporation Headquarters</strong>.</p>
                 
-                <p>As the <strong>Regional Vice President of Human Resources</strong>, you will be asked to provide verbal responses to questions from HQ regarding the relocation plan. Your answers will be recorded and transmitted via this encrypted channel.</p>
+                <p>As the <strong>Regional Vice President of Human Resources</strong>, HQ needs to understand your assessment of the current situation in China. They will ask you a series of questions that require <strong>Yes</strong> or <strong>No</strong> answers.</p>
                 
-                <p>Due to the sensitive nature of this operation, we do not know in advance which specific questions HQ will ask. You must be prepared to answer <strong>any of the 50 possible questions</strong> in the assignment memo.</p>
+                <p>Due to the sensitive nature of this operation, we do not know in advance which specific questions HQ will ask. The assignment memo contains <strong>100 possible questions</strong> — you must be prepared to answer any of them.</p>
             </div>
             
             <div class="warning-box">
@@ -453,27 +535,15 @@
             <div class="session-info">
                 <div class="label">Your Session ID</div>
                 <div class="value" id="session-id">------</div>
-                <div style="margin-top: 0.5rem; font-size: 0.8rem; color: #888;">Include this in your submission filename</div>
             </div>
             
             <div class="question-count">
-                <div class="number">5</div>
+                <div class="number">20</div>
                 <div class="label">Questions will be asked by HQ</div>
             </div>
             
-            <div class="briefing-text">
-                <p><strong>Instructions:</strong></p>
-                <ul style="margin-left: 1.5rem; color: #ccc;">
-                    <li>When ready, click "Start Secure Session" below</li>
-                    <li>Five questions will appear with a countdown timer</li>
-                    <li>Record yourself answering all five questions verbally</li>
-                    <li>Name your recording file with your Student ID and Session ID</li>
-                    <li>Submit via email within 48 hours</li>
-                </ul>
-            </div>
-            
             <div class="start-section">
-                <p style="color: #888; margin-bottom: 1rem;">When you are ready to answer the five questions from HQ, click the button below.</p>
+                <p style="color: #888; margin-bottom: 1rem;">When you are ready to answer questions from HQ, click the button below.</p>
                 <button class="btn btn-warning" onclick="startQuestions()">Start Secure Session</button>
             </div>
         </div>
@@ -484,11 +554,11 @@
         <div class="timer-bar">
             <div>
                 <div class="timer-label">Time Remaining</div>
-                <div class="timer" id="timer">10:00</div>
+                <div class="timer" id="timer">15:00</div>
             </div>
-            <div style="text-align: right;">
-                <div class="timer-label">Session</div>
-                <div style="font-family: 'JetBrains Mono', monospace; color: var(--accent);" id="session-id-display">------</div>
+            <div class="progress-info">
+                <div class="timer-label">Progress</div>
+                <div class="progress-text"><span id="answered-count">0</span> / 20</div>
             </div>
         </div>
         
@@ -497,8 +567,9 @@
         </div>
         
         <div class="submit-section">
-            <p style="color: #888; margin-bottom: 1rem;">Once you have recorded your answers to all questions:</p>
-            <button class="btn" onclick="completeSession()">Complete Session</button>
+            <p id="unanswered-warning" class="unanswered-warning" style="display: none;">Please answer all questions before submitting.</p>
+            <p>When you have answered all questions:</p>
+            <button class="btn" id="submit-btn" onclick="completeSession()">Submit to HQ</button>
         </div>
     </div>
     
@@ -506,32 +577,37 @@
     <div id="complete-screen" class="container">
         <div class="card" style="text-align: center;">
             <div class="complete-icon">✓</div>
-            <h2>Session Complete</h2>
-            <p style="color: #888;">Secure channel closed. Submit your recording within 48 hours.</p>
+            <h2>Transmission Complete</h2>
+            <p style="color: #888;">Your responses have been securely transmitted to HQ.</p>
         </div>
         
         <div class="card">
-            <h2>Submission Instructions</h2>
-            <ol class="instructions-list">
-                <li data-step="1">Ensure you have recorded answers to all 5 questions</li>
-                <li data-step="2">Name your file: <strong style="color: var(--accent);">494BI_XYZ_[StudentID]_<span id="final-session-id">------</span>.mp3</strong></li>
-                <li data-step="3">Email your recording to the address below</li>
-                <li data-step="4">Deadline: 48 hours from session start</li>
-            </ol>
-            <div style="text-align: center; margin-top: 1.5rem;">
-                <a href="mailto:mlangenkamp@umass.edu?subject=494BI%20XYZ%20Simulation%20Submission" class="email-link">📧 Submit Recording</a>
+            <h2>Session Summary</h2>
+            <div class="session-info">
+                <div class="label">Session ID</div>
+                <div class="value" id="final-session-id">------</div>
+            </div>
+            
+            <div class="results-summary">
+                <div class="result-box yes">
+                    <div class="value" id="yes-count">0</div>
+                    <div class="label">Yes Responses</div>
+                </div>
+                <div class="result-box no">
+                    <div class="value" id="no-count">0</div>
+                    <div class="label">No Responses</div>
+                </div>
+            </div>
+            
+            <div class="session-info">
+                <div class="label">Time Used</div>
+                <div class="value" id="time-used">--:--</div>
             </div>
         </div>
         
         <div class="card">
-            <h2>Grading Criteria</h2>
-            <ul style="padding-left: 1.25rem; color: #ccc;">
-                <li><strong style="color: #fff;">Risk Awareness</strong> (25%) — Understanding of legal, detention, and surveillance risks</li>
-                <li><strong style="color: #fff;">Cultural Intelligence</strong> (25%) — Application of Trompenaars, GLOBE, face, guanxi</li>
-                <li><strong style="color: #fff;">Strategic Thinking</strong> (25%) — Coherent plan balancing competing demands</li>
-                <li><strong style="color: #fff;">Historical Grounding</strong> (15%) — Use of precedents (Kovrig/Spavor, Rio Tinto, etc.)</li>
-                <li><strong style="color: #fff;">Communication Clarity</strong> (10%) — Clear, organized, within time limits</li>
-            </ul>
+            <h2>What Happens Next</h2>
+            <p style="color: #ccc;">Your responses have been recorded. Your instructor will review your answers against the scenario requirements and provide feedback.</p>
         </div>
     </div>
     
@@ -541,98 +617,145 @@
     </div>
     
     <script>
-        // Question bank - all 50 questions
+        // 100 Yes/No Questions
         const questionBank = [
-            // Category A: Immediate Risk Assessment
-            "What is your assessment of the arrest risk for your team if they attempt to communicate the relocation plan to Chinese staff?",
-            "How do you evaluate the likelihood that Chinese authorities already know about the U.S. government directive to your company?",
-            "What signals should your team watch for that would indicate increased surveillance or imminent detention risk?",
-            "How does the BorgWarner arrest change your risk calculus compared to one week ago?",
-            "What is the risk profile difference between a Hong Kong-based meeting versus a Shenzhen-based meeting for this discussion?",
-            "If Chinese authorities detain one of your executives, what is your immediate response protocol?",
+            // Category A: Immediate Risk Assessment (15 questions)
+            "Is the arrest risk for executives attempting face-to-face communication with Chinese staff about the relocation higher than 50%?",
+            "Do you believe Chinese authorities already know about the U.S. government directive to your company?",
+            "Should your team assume all digital communications in China are being monitored?",
+            "Does the BorgWarner arrest significantly change your risk assessment compared to one week ago?",
+            "Is a meeting in Hong Kong materially safer than a meeting in Shenzhen for discussing the relocation?",
+            "Should you have an immediate response protocol ready in case an executive is detained?",
+            "Is the risk of detention higher for executives who speak Mandarin fluently?",
+            "Should executives avoid traveling to mainland China until the relocation is complete?",
+            "Is it safer to communicate the relocation plan through local Chinese intermediaries?",
+            "Do you believe your company's communications have already been compromised?",
+            "Should you assume that Chinese employees with government connections will report conversations to authorities?",
+            "Is the current political climate more dangerous for American executives than at any point in the past decade?",
+            "Should family members of key executives leave China before the relocation is announced?",
+            "Is there a meaningful risk that Chinese authorities could use employees as leverage against the company?",
+            "Should you recommend that executives update their wills before proceeding?",
             
-            // Category B: Chinese Government Perspective
-            "Using the lens of Chinese strategic culture, why might the government choose to arrest American executives rather than simply block the relocation?",
-            "How do Decrees 834 and 835 create a legal framework that makes your planned actions potentially criminal under Chinese law?",
-            "What historical precedents from Chinese government behavior toward foreign companies inform your planning?",
-            "How might the Chinese government view the timing and method of your planned staff communications?",
-            "What role does 'face' play in how you should handle communications with Chinese employees and officials?",
-            "How does the concept of guanxi affect your options and constraints in this situation?",
+            // Category B: Chinese Government Perspective (15 questions)
+            "Is the Chinese government more likely to view this relocation as an act of economic aggression than as routine business?",
+            "Do Decrees 834 and 835 create genuine legal exposure for your planned actions?",
+            "Would the Chinese government consider the relocation of defense-related production a matter of national security?",
+            "Is it likely that Chinese authorities will attempt to block the relocation through legal means?",
+            "Does the concept of 'face' require you to give Chinese officials advance notice of the relocation?",
+            "Would a public announcement of the relocation be seen as more provocative than a quiet departure?",
+            "Is the Chinese government likely to retaliate against employees who remain after the relocation?",
+            "Do you believe Chinese authorities would detain executives primarily for intelligence value rather than legal prosecution?",
+            "Is it possible to structure the relocation in a way that allows Chinese authorities to claim they approved it?",
+            "Would offering to maintain non-defense operations in China reduce the risk of government retaliation?",
+            "Is the timing of the relocation (during current US-China tensions) likely to increase government scrutiny?",
+            "Do you believe Chinese authorities distinguish between companies that comply quietly versus those that resist?",
+            "Would hiring a well-connected Chinese law firm reduce your legal exposure?",
+            "Is it likely that Chinese state media will publicize any executive detentions?",
+            "Do you believe the Chinese government views your company as strategically important enough to make an example of?",
             
-            // Category C: U.S. Government Perspective
-            "What are the consequences to your company if you fail to comply with the U.S. government directive?",
-            "How do U.S. export control laws interact with Chinese counter-espionage laws in your situation?",
-            "What protections, if any, can the U.S. government provide to your personnel in China?",
-            "How should you communicate with U.S. government officials about implementation challenges?",
+            // Category C: U.S. Government Perspective (10 questions)
+            "Will the U.S. government impose significant penalties if you fail to comply with the relocation directive?",
+            "Can the U.S. government provide meaningful protection to your personnel in China?",
+            "Should you request a meeting with the U.S. Consulate in Hong Kong before proceeding?",
+            "Would the U.S. government support a slower relocation timeline if you requested it?",
+            "Is there a risk that U.S. export control violations could result in criminal charges against executives?",
+            "Should you document all communications with U.S. government officials about this directive?",
+            "Would the U.S. government publicly support your company if executives are detained?",
+            "Is it possible to negotiate the scope of what must be relocated with U.S. officials?",
+            "Should you assume that U.S. government communications are also being monitored by China?",
+            "Is the U.S. government likely to be sympathetic to implementation challenges?",
             
-            // Category D: Strategic Options
-            "What are the arguments for and against accelerating the relocation versus slowing it down?",
-            "Should you consider relocating personnel before communicating the business decision to Chinese staff?",
-            "What role could a third country such as Singapore, Vietnam, or Thailand play in your relocation strategy?",
-            "How might you structure communications to Chinese staff to minimize legal exposure under Chinese law?",
-            "Should your company consider abandoning the defense contract rather than relocating production?",
-            "What is your recommendation for handling the 1,000+ employees in divisions not affected by the defense restriction?",
+            // Category D: Strategic Options (15 questions)
+            "Should you accelerate the relocation timeline despite the increased risk?",
+            "Is it advisable to relocate key personnel before communicating the business decision to Chinese staff?",
+            "Could Singapore serve as a viable intermediate location for relocated operations?",
+            "Should you consider abandoning the defense contract rather than relocating production?",
+            "Is it possible to separate the defense work from other operations to minimize the scope of relocation?",
+            "Should you recommend a complete exit from China rather than a partial relocation?",
+            "Is it advisable to announce the relocation publicly as a response to U.S. government requirements?",
+            "Should the company consider selling its Chinese operations to a local buyer?",
+            "Is it possible to license the non-defense technology to a Chinese partner as part of the exit?",
+            "Should you recommend bringing in a crisis management firm with China experience?",
+            "Is it advisable to have multiple relocation plans ready depending on how events unfold?",
+            "Should you consider temporarily suspending all defense-related work in China immediately?",
+            "Is it possible to relocate production in phases to minimize disruption?",
+            "Should the company establish operations in Vietnam as an alternative to returning to the U.S.?",
+            "Is it advisable to proactively brief Chinese officials on the U.S. government directive?",
             
-            // Category E: Human Resources Specifics
-            "How do you identify which personnel have knowledge that makes them high-risk for detention?",
-            "What severance or transition support can you offer Chinese employees without triggering legal exposure?",
-            "How do you handle Chinese employees with family members in government or military positions?",
-            "What is your plan for employees who refuse to relocate?",
-            "How do you prevent knowledge transfer to competitors during this transition?",
-            "What psychological support do you provide to expatriate staff who are frightened?",
+            // Category E: Human Resources Specifics (15 questions)
+            "Can you identify which personnel have knowledge that makes them high-risk for detention?",
+            "Should you offer relocation packages to Chinese employees who want to leave?",
+            "Is it advisable to continue paying Chinese employees during a transition period after operations cease?",
+            "Should employees with family members in the Chinese government or military be handled differently?",
+            "Is there a legal way to prevent knowledge transfer to competitors during this transition?",
+            "Should you provide psychological support services to expatriate staff?",
+            "Is it advisable to offer early retirement packages to senior Chinese employees?",
+            "Should you help Chinese employees find positions at other foreign companies in China?",
+            "Is it possible to maintain any ongoing relationship with former Chinese employees?",
+            "Should American employees be given the option to resign rather than participate in the relocation?",
+            "Is it advisable to bring in local HR consultants to manage the Chinese workforce transition?",
+            "Should you assume that some Chinese employees will refuse to cooperate with the relocation?",
+            "Is it appropriate to ask Chinese employees to sign non-disclosure agreements about the relocation?",
+            "Should the company provide legal representation to employees who face government questioning?",
+            "Is it possible to maintain employee morale during a drawn-out relocation process?",
             
-            // Category F: Operational Security
-            "How confident are you that this hotel meeting room is actually secure?",
-            "What is your communication protocol if a team member is detained during the relocation process?",
-            "How do you verify that your secure app has not been compromised?",
-            "Should family members of key personnel be relocated before the plan is announced?",
-            "What is your protocol for the hike tomorrow if you notice surveillance?",
+            // Category F: Operational Security (10 questions)
+            "Should you assume this meeting room may be under surveillance?",
+            "Is it advisable to use only verbal communication for sensitive planning?",
+            "Should you verify the secure app has not been compromised before using it?",
+            "Is it safe to assume your mobile phones are being monitored?",
+            "Should you establish code words for sensitive topics in case communications are intercepted?",
+            "Is the MacLehose Trail hike tomorrow a reasonably secure venue for planning?",
+            "Should you vary your routine to avoid predictable patterns that could facilitate surveillance?",
+            "Is it advisable to have a protocol for destroying sensitive documents?",
+            "Should you assume that hotel staff may be reporting to authorities?",
+            "Is it possible to identify if you are currently under active surveillance?",
             
-            // Category G: Cultural Intelligence
-            "How do Trompenaars' dimensions of universalism versus particularism and individualism versus communitarianism apply to how Chinese employees will receive this news?",
-            "According to GLOBE Project research, how do Chinese and American cultures differ on uncertainty avoidance, and how does this affect your planning?",
-            "How should you adapt your communication style for Chinese employees versus your American headquarters?",
-            "What role do intermediaries play in Chinese business culture, and how might you use them?",
+            // Category G: Cultural Intelligence (10 questions)
+            "Does Trompenaars' universalism vs. particularism dimension suggest Chinese employees will view this situation differently than Americans?",
+            "According to GLOBE research, does China's high uncertainty avoidance suggest employees will resist sudden changes?",
+            "Is it appropriate to use intermediaries when delivering difficult news to Chinese employees?",
+            "Should you adapt your communication style significantly for Chinese versus American audiences?",
+            "Is the concept of 'guanxi' relevant to how you should handle government relations during this crisis?",
+            "Would Chinese employees expect more indirect communication about the relocation than Americans?",
+            "Is it culturally appropriate to emphasize collective benefits when explaining the relocation to Chinese staff?",
+            "Should you consider the hierarchical expectations of Chinese employees when planning communications?",
+            "Is 'saving face' for Chinese employees a legitimate strategic concern in this situation?",
+            "Would Chinese business culture expect you to have built relationships with local officials before this crisis?",
             
-            // Category H: Historical Precedent
-            "What lessons from the detention of Huawei CFO Meng Wanzhou apply to your situation?",
-            "How does the case of Michael Kovrig and Michael Spavor inform your risk assessment?",
-            "What can you learn from how other companies like Rio Tinto, Qualcomm, and GSK handled Chinese government investigations?",
-            "How did the NBA's experience with China in 2019 demonstrate the risks of public communication?",
-            "What does the history of foreign executives detained in China tell you about typical resolution timelines?",
-            
-            // Category I: Game Theory and Negotiation
-            "If you assume Chinese authorities know your plan, how does that change your strategy?",
-            "What is your BATNA — your Best Alternative to Negotiated Agreement — in this situation?",
-            "How might you create options that allow the Chinese government to save face while you achieve your objectives?",
-            "What moves might the Chinese government make to block your relocation, and how do you counter each?",
-            "Is there a scenario where cooperation with Chinese authorities produces a better outcome than covert action?",
-            
-            // Category J: The Presentation
-            "If you have only three minutes, what are the three most critical points you must convey to headquarters?",
-            "How do you frame risk in a way that enables decision-making rather than paralysis?",
-            "What decision do you need from headquarters to proceed?"
+            // Category H: Historical Precedent (10 questions)
+            "Does the detention of Huawei CFO Meng Wanzhou suggest that senior executives are at particular risk?",
+            "Does the case of Michael Kovrig and Michael Spavor indicate that Canada-style diplomatic incidents could affect Americans?",
+            "Do the experiences of Rio Tinto, Qualcomm, and GSK suggest that cooperation with authorities reduces penalties?",
+            "Does the NBA's experience in 2019 suggest that public statements can escalate tensions with China?",
+            "Based on historical cases, is the typical resolution timeline for executive detentions measured in months or years?",
+            "Do historical precedents suggest that smaller companies face less scrutiny than major multinationals?",
+            "Have previous U.S.-China tensions resulted in widespread detention of American business executives?",
+            "Do historical cases suggest that companies with strong local partnerships fare better in crises?",
+            "Is there precedent for successful quiet departures from China without government retaliation?",
+            "Do historical patterns suggest that the current political environment is unusually dangerous?"
         ];
         
-        // Category distribution for balanced selection
+        // Distribute questions into categories for balanced selection
         const categories = {
-            A: [0, 1, 2, 3, 4, 5],
-            B: [6, 7, 8, 9, 10, 11],
-            C: [12, 13, 14, 15],
-            D: [16, 17, 18, 19, 20, 21],
-            E: [22, 23, 24, 25, 26, 27],
-            F: [28, 29, 30, 31, 32],
-            G: [33, 34, 35, 36],
-            H: [37, 38, 39, 40, 41],
-            I: [42, 43, 44, 45, 46],
-            J: [47, 48, 49]
+            A: Array.from({length: 15}, (_, i) => i),           // 0-14: Risk Assessment
+            B: Array.from({length: 15}, (_, i) => i + 15),      // 15-29: Chinese Gov
+            C: Array.from({length: 10}, (_, i) => i + 30),      // 30-39: U.S. Gov
+            D: Array.from({length: 15}, (_, i) => i + 40),      // 40-54: Strategic Options
+            E: Array.from({length: 15}, (_, i) => i + 55),      // 55-69: HR Specifics
+            F: Array.from({length: 10}, (_, i) => i + 70),      // 70-79: Operational Security
+            G: Array.from({length: 10}, (_, i) => i + 80),      // 80-89: Cultural Intelligence
+            H: Array.from({length: 10}, (_, i) => i + 90)       // 90-99: Historical Precedent
         };
         
         const VALID_CODES = ['HK2026', 'XYZ494', 'EXEC26'];
         
         let sessionId = '';
         let timerInterval = null;
-        let timeRemaining = 600; // 10 minutes in seconds
+        let timeRemaining = 900; // 15 minutes
+        let startTime = null;
+        let answers = {};
+        let selectedQuestions = [];
         
         function checkAccess() {
             const code = document.getElementById('access-code').value.toUpperCase().trim();
@@ -650,23 +773,28 @@
         }
         
         function startQuestions() {
+            startTime = new Date();
             document.getElementById('briefing-screen').style.display = 'none';
             document.getElementById('questions-screen').style.display = 'block';
-            document.getElementById('session-id-display').textContent = sessionId;
             
             // Generate and display questions
-            const selectedQuestions = selectBalancedQuestions(5);
+            selectedQuestions = selectBalancedQuestions(20);
             const container = document.getElementById('questions-container');
             container.innerHTML = '';
             
             selectedQuestions.forEach((qIndex, i) => {
                 const questionDiv = document.createElement('div');
                 questionDiv.className = 'question-card';
+                questionDiv.id = `question-${i}`;
                 questionDiv.innerHTML = `
                     <div class="question-header">
-                        <div class="question-number">QUESTION ${i + 1} OF 5</div>
+                        <div class="question-number">QUESTION ${i + 1} OF 20</div>
                     </div>
                     <div class="question-text">${questionBank[qIndex]}</div>
+                    <div class="answer-buttons">
+                        <button class="answer-btn yes-btn" onclick="selectAnswer(${i}, 'yes')">Yes</button>
+                        <button class="answer-btn no-btn" onclick="selectAnswer(${i}, 'no')">No</button>
+                    </div>
                 `;
                 container.appendChild(questionDiv);
             });
@@ -680,6 +808,39 @@
             
             // Start timer
             startTimer();
+        }
+        
+        function selectAnswer(questionIndex, answer) {
+            answers[questionIndex] = answer;
+            
+            // Update UI
+            const card = document.getElementById(`question-${questionIndex}`);
+            card.classList.remove('answered-yes', 'answered-no');
+            card.classList.add(`answered-${answer}`);
+            
+            const yesBtn = card.querySelector('.yes-btn');
+            const noBtn = card.querySelector('.no-btn');
+            yesBtn.classList.remove('selected');
+            noBtn.classList.remove('selected');
+            
+            if (answer === 'yes') {
+                yesBtn.classList.add('selected');
+            } else {
+                noBtn.classList.add('selected');
+            }
+            
+            // Update progress
+            updateProgress();
+        }
+        
+        function updateProgress() {
+            const answeredCount = Object.keys(answers).length;
+            document.getElementById('answered-count').textContent = answeredCount;
+            
+            // Hide warning if all answered
+            if (answeredCount === 20) {
+                document.getElementById('unanswered-warning').style.display = 'none';
+            }
         }
         
         function startTimer() {
@@ -707,39 +868,71 @@
         }
         
         function completeSession() {
+            const answeredCount = Object.keys(answers).length;
+            
+            if (answeredCount < 20 && timeRemaining > 0) {
+                document.getElementById('unanswered-warning').style.display = 'block';
+                return;
+            }
+            
             if (timerInterval) {
                 clearInterval(timerInterval);
             }
+            
+            // Calculate results
+            let yesCount = 0;
+            let noCount = 0;
+            Object.values(answers).forEach(a => {
+                if (a === 'yes') yesCount++;
+                else noCount++;
+            });
+            
+            // Calculate time used
+            const endTime = new Date();
+            const timeUsedMs = endTime - startTime;
+            const timeUsedMin = Math.floor(timeUsedMs / 60000);
+            const timeUsedSec = Math.floor((timeUsedMs % 60000) / 1000);
+            
+            // Update complete screen
+            document.getElementById('final-session-id').textContent = sessionId;
+            document.getElementById('yes-count').textContent = yesCount;
+            document.getElementById('no-count').textContent = noCount;
+            document.getElementById('time-used').textContent = 
+                `${timeUsedMin.toString().padStart(2, '0')}:${timeUsedSec.toString().padStart(2, '0')}`;
+            
+            // Save results
+            const results = {
+                sessionId: sessionId,
+                questions: selectedQuestions,
+                answers: answers,
+                yesCount: yesCount,
+                noCount: noCount,
+                timeUsed: `${timeUsedMin}:${timeUsedSec.toString().padStart(2, '0')}`,
+                timestamp: new Date().toISOString()
+            };
+            localStorage.setItem('xyz_results', JSON.stringify(results));
+            
+            // Show complete screen
             document.getElementById('questions-screen').style.display = 'none';
             document.getElementById('complete-screen').style.display = 'block';
-            document.getElementById('final-session-id').textContent = sessionId;
         }
         
         function selectBalancedQuestions(count) {
             const selected = [];
-            const usedCategories = new Set();
+            const categoryList = Object.keys(categories);
             
-            // Must include: A (Risk), B (Chinese Gov), D (Strategic)
-            const required = ['A', 'B', 'D'];
-            required.forEach(cat => {
-                const options = categories[cat];
-                const pick = options[Math.floor(Math.random() * options.length)];
-                selected.push(pick);
-                usedCategories.add(cat);
+            // Ensure at least 2 from each category, then fill randomly
+            // With 8 categories and 20 questions, we take 2-3 from each
+            const perCategory = [3, 3, 2, 3, 3, 2, 2, 2]; // = 20 total
+            
+            categoryList.forEach((cat, idx) => {
+                const catQuestions = categories[cat];
+                const shuffled = [...catQuestions].sort(() => Math.random() - 0.5);
+                const picks = shuffled.slice(0, perCategory[idx]);
+                selected.push(...picks);
             });
             
-            // Fill remaining from other categories
-            const otherCats = Object.keys(categories).filter(c => !usedCategories.has(c));
-            while (selected.length < count) {
-                const cat = otherCats[Math.floor(Math.random() * otherCats.length)];
-                const options = categories[cat];
-                const pick = options[Math.floor(Math.random() * options.length)];
-                if (!selected.includes(pick)) {
-                    selected.push(pick);
-                }
-            }
-            
-            // Shuffle order
+            // Shuffle final selection
             return selected.sort(() => Math.random() - 0.5);
         }
         
@@ -752,7 +945,7 @@
             return id;
         }
         
-        // Allow Enter key to submit
+        // Allow Enter key to submit access code
         document.getElementById('access-code').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 checkAccess();
