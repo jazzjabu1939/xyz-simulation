@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XYZ Corp Simulation — Instructor Results</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --card-bg: #141414;
+            --border: #333;
+            --accent: #00ff88;
+            --warning: #ff6b35;
+            --correct: #00ff88;
+            --incorrect: #ff4444;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: #e0e0e0;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .logo {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--warning);
+            border: 1px solid var(--warning);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+        
+        .header h1 {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #fff;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+        
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card h2 {
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--accent);
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+        
+        .lookup-form {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .session-input {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.2rem;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            text-align: center;
+            width: 150px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            background: #0a0a0a;
+            color: var(--accent);
+        }
+        
+        .session-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .btn {
+            background: var(--accent);
+            color: #0a0a0a;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .btn:hover {
+            background: #00cc6a;
+        }
+        
+        .error-msg {
+            color: #ff4444;
+            margin-top: 1rem;
+        }
+        
+        .results-section {
+            display: none;
+        }
+        
+        .score-display {
+            text-align: center;
+            padding: 2rem;
+            background: #0a0a0a;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .score-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 4rem;
+            font-weight: 700;
+        }
+        
+        .score-value.good {
+            color: var(--correct);
+        }
+        
+        .score-value.medium {
+            color: var(--warning);
+        }
+        
+        .score-value.poor {
+            color: var(--incorrect);
+        }
+        
+        .score-label {
+            color: #888;
+            font-size: 1rem;
+            margin-top: 0.5rem;
+        }
+        
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .meta-box {
+            background: #0a0a0a;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .meta-box .value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.25rem;
+            color: var(--accent);
+        }
+        
+        .meta-box .label {
+            font-size: 0.75rem;
+            color: #888;
+            text-transform: uppercase;
+            margin-top: 0.25rem;
+        }
+        
+        .questions-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .questions-table th,
+        .questions-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .questions-table th {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #888;
+            font-weight: 500;
+        }
+        
+        .questions-table tr.correct {
+            background: rgba(0, 255, 136, 0.05);
+        }
+        
+        .questions-table tr.incorrect {
+            background: rgba(255, 68, 68, 0.05);
+        }
+        
+        .q-num {
+            font-family: 'JetBrains Mono', monospace;
+            color: #888;
+            font-size: 0.85rem;
+        }
+        
+        .q-text {
+            font-size: 0.9rem;
+            color: #ccc;
+        }
+        
+        .answer-cell {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+        
+        .answer-cell.yes { color: var(--correct); }
+        .answer-cell.no { color: var(--incorrect); }
+        
+        .result-icon {
+            font-size: 1.2rem;
+        }
+        
+        .result-icon.correct { color: var(--correct); }
+        .result-icon.incorrect { color: var(--incorrect); }
+        
+        .all-sessions {
+            margin-top: 2rem;
+        }
+        
+        .session-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .session-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .session-list .session-id {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent);
+            cursor: pointer;
+        }
+        
+        .session-list .session-id:hover {
+            text-decoration: underline;
+        }
+        
+        .session-list .session-meta {
+            font-size: 0.85rem;
+            color: #888;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+            font-size: 0.8rem;
+            border-top: 1px solid var(--border);
+            margin-top: 2rem;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .card {
+                padding: 1.5rem;
+            }
+            
+            .questions-table {
+                font-size: 0.85rem;
+            }
+            
+            .questions-table th,
+            .questions-table td {
+                padding: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <div class="logo">INSTRUCTOR</div>
+            <h1>XYZ Corp Simulation Results</h1>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="card">
+            <h2>Lookup Session Results</h2>
+            <div class="lookup-form">
+                <input type="text" id="session-input" class="session-input" maxlength="6" placeholder="------" autocomplete="off">
+                <button class="btn" onclick="lookupSession()">View Results</button>
+            </div>
+            <p id="error-message" class="error-msg" style="display: none;"></p>
+        </div>
+        
+        <div id="results-section" class="results-section">
+            <div class="score-display">
+                <div class="score-value" id="score-value">--</div>
+                <div class="score-label">Correct out of 20 (<span id="score-percent">--%</span>)</div>
+            </div>
+            
+            <div class="meta-grid">
+                <div class="meta-box">
+                    <div class="value" id="result-session-id">------</div>
+                    <div class="label">Session ID</div>
+                </div>
+                <div class="meta-box">
+                    <div class="value" id="result-time">--:--</div>
+                    <div class="label">Time Used</div>
+                </div>
+                <div class="meta-box">
+                    <div class="value" id="result-timestamp">--</div>
+                    <div class="label">Completed</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>Question-by-Question Results</h2>
+                <table class="questions-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Question</th>
+                            <th>Correct</th>
+                            <th>Student</th>
+                            <th>Result</th>
+                        </tr>
+                    </thead>
+                    <tbody id="questions-body">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="card all-sessions">
+            <h2>All Stored Sessions</h2>
+            <p style="color: #888; margin-bottom: 1rem; font-size: 0.9rem;">Sessions stored in this browser's localStorage:</p>
+            <ul class="session-list" id="session-list">
+                <li style="color: #666;">No sessions found</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="footer">
+        MGMT 494BI: Business Policy & Strategy | Instructor View<br>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 0.7rem;">Results stored in browser localStorage</span>
+    </div>
+    
+    <script>
+        // Load all sessions on page load
+        document.addEventListener('DOMContentLoaded', loadAllSessions);
+        
+        function loadAllSessions() {
+            const sessionList = document.getElementById('session-list');
+            const sessions = [];
+            
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('xyz_results_')) {
+                    try {
+                        const data = JSON.parse(localStorage.getItem(key));
+                        sessions.push(data);
+                    } catch (e) {
+                        console.error('Failed to parse session:', key);
+                    }
+                }
+            }
+            
+            if (sessions.length === 0) {
+                sessionList.innerHTML = '<li style="color: #666;">No sessions found in this browser</li>';
+                return;
+            }
+            
+            // Sort by timestamp descending
+            sessions.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
+            sessionList.innerHTML = sessions.map(s => {
+                const date = new Date(s.timestamp).toLocaleString();
+                return `
+                    <li>
+                        <span class="session-id" onclick="lookupSessionById('${s.sessionId}')">${s.sessionId}</span>
+                        <span class="session-meta">${s.score}/20 (${s.percentage}%) — ${date}</span>
+                    </li>
+                `;
+            }).join('');
+        }
+        
+        function lookupSessionById(sessionId) {
+            document.getElementById('session-input').value = sessionId;
+            lookupSession();
+        }
+        
+        function lookupSession() {
+            const sessionId = document.getElementById('session-input').value.toUpperCase().trim();
+            const errorEl = document.getElementById('error-message');
+            const resultsSection = document.getElementById('results-section');
+            
+            if (!sessionId || sessionId.length < 6) {
+                errorEl.textContent = 'Please enter a valid 6-character session ID.';
+                errorEl.style.display = 'block';
+                resultsSection.style.display = 'none';
+                return;
+            }
+            
+            const data = localStorage.getItem('xyz_results_' + sessionId);
+            
+            if (!data) {
+                errorEl.textContent = `Session ${sessionId} not found in this browser's storage.`;
+                errorEl.style.display = 'block';
+                resultsSection.style.display = 'none';
+                return;
+            }
+            
+            errorEl.style.display = 'none';
+            
+            try {
+                const results = JSON.parse(data);
+                displayResults(results);
+            } catch (e) {
+                errorEl.textContent = 'Error parsing session data.';
+                errorEl.style.display = 'block';
+                resultsSection.style.display = 'none';
+            }
+        }
+        
+        function displayResults(results) {
+            const resultsSection = document.getElementById('results-section');
+            resultsSection.style.display = 'block';
+            
+            // Score display
+            const scoreValue = document.getElementById('score-value');
+            scoreValue.textContent = results.score;
+            scoreValue.className = 'score-value';
+            if (results.percentage >= 80) {
+                scoreValue.classList.add('good');
+            } else if (results.percentage >= 60) {
+                scoreValue.classList.add('medium');
+            } else {
+                scoreValue.classList.add('poor');
+            }
+            
+            document.getElementById('score-percent').textContent = results.percentage + '%';
+            document.getElementById('result-session-id').textContent = results.sessionId;
+            document.getElementById('result-time').textContent = results.timeUsed;
+            
+            const timestamp = new Date(results.timestamp);
+            document.getElementById('result-timestamp').textContent = timestamp.toLocaleDateString() + ' ' + timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            // Questions table
+            const tbody = document.getElementById('questions-body');
+            tbody.innerHTML = '';
+            
+            results.questions.forEach((questionText, i) => {
+                const studentAnswer = results.answers[i] || 'N/A';
+                const correctAnswer = results.correctAnswers[i];
+                const isCorrect = studentAnswer === correctAnswer;
+                
+                const row = document.createElement('tr');
+                row.className = isCorrect ? 'correct' : 'incorrect';
+                
+                row.innerHTML = `
+                    <td class="q-num">${i + 1}</td>
+                    <td class="q-text">${questionText}</td>
+                    <td class="answer-cell ${correctAnswer}">${correctAnswer.toUpperCase()}</td>
+                    <td class="answer-cell ${studentAnswer}">${studentAnswer.toUpperCase()}</td>
+                    <td class="result-icon ${isCorrect ? 'correct' : 'incorrect'}">${isCorrect ? '✓' : '✗'}</td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+            
+            // Scroll to results
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Allow Enter key to submit
+        document.getElementById('session-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                lookupSession();
+            }
+        });
+    </script>
+</body>
+</html>
